@@ -33,10 +33,10 @@ export const GiftReveal: React.FC<GiftRevealProps> = ({
 
     if (updated.length === giftStars.length && !reducedMotion) {
       confetti({
-        particleCount: 130,
+        particleCount: 140,
         spread: 95,
         origin: { y: 0.6 },
-        colors: ['#FFD95A', '#F7B8C8', '#9DDDF2', '#F6C9A8'],
+        colors: ['#FFD95A', '#F7B8C8', '#9DDDF2', '#F6C9A8', '#FF8DA1'],
       });
     }
   };
@@ -45,95 +45,97 @@ export const GiftReveal: React.FC<GiftRevealProps> = ({
     setClickedStars(giftStars.map((s) => s.id));
     if (!reducedMotion) {
       confetti({
-        particleCount: 130,
+        particleCount: 140,
         spread: 95,
         origin: { y: 0.6 },
-        colors: ['#FFD95A', '#F7B8C8', '#9DDDF2', '#F6C9A8'],
+        colors: ['#FFD95A', '#F7B8C8', '#9DDDF2', '#F6C9A8', '#FF8DA1'],
       });
     }
   };
 
   return (
-    <section
+    <div
       aria-label="Chapter 08: The Physical Gift Reveal"
-      className="h-full w-full overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8"
+      className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12"
     >
-      <div className="max-w-5xl mx-auto my-auto">
+      <div className="max-w-4xl mx-auto w-full text-center">
         {/* Chapter Header */}
-        <div className="text-center max-w-3xl mx-auto mb-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blush border-2 border-cocoa shadow-sticker mb-3">
+        <div className="text-center max-w-2xl mx-auto mb-6">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-blush border-2 border-cocoa shadow-sticker mb-2">
             <Gift className="w-3.5 h-3.5 text-cocoa" />
-            <span className="text-xs font-extrabold uppercase tracking-wider text-cocoa">
-              CHAPTER 08 / 08 • THE FINAL SURPRISE
+            <span className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-cocoa">
+              CHAPTER 08 • THE FINAL SURPRISE
             </span>
           </div>
 
-          <h2 className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold text-cocoa tracking-tight mb-2">
+          <h2 className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold text-cocoa tracking-tight">
             ONE LAST THING...
           </h2>
 
-          <p className="text-sm sm:text-base font-bold text-cocoa-light">
-            Tap all five golden stars below ({clickedStars.length} of 5 unlocked) to untie the ribbon and open your birthday gift box!
+          <p className="text-xs sm:text-sm font-bold text-cocoa-light mt-1">
+            Tap all five stars below ({clickedStars.length} of 5 unlocked) to open your birthday gift box!
           </p>
         </div>
 
         {/* 5 Interactive Stars Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-6">
-          {giftStars.map((star) => {
-            const isUnlocked = clickedStars.includes(star.id);
-            return (
-              <motion.button
-                key={star.id}
-                type="button"
-                onClick={() => handleStarClick(star.id)}
-                whileHover={{ y: -3 }}
-                whileTap={{ scale: 0.97 }}
-                aria-pressed={isUnlocked}
-                className={`p-3.5 sm:p-4 rounded-3xl border-2 border-cocoa text-left transition-all cursor-pointer flex flex-col justify-between min-h-[124px] ${
-                  isUnlocked
-                    ? 'bg-sunshine shadow-sticker'
-                    : 'bg-cream-paper hover:bg-sunshine-soft shadow-sm'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-cocoa">
-                    STAR 0{star.id}
-                  </span>
-                  <div
-                    className={`w-8 h-8 rounded-full border-2 border-cocoa flex items-center justify-center ${
-                      isUnlocked ? 'bg-cream-paper' : 'bg-sunshine'
-                    }`}
-                  >
-                    <Star
-                      className={`w-4 h-4 text-cocoa ${
-                        isUnlocked ? 'fill-sunshine-deep' : ''
+        {!allStarsClicked && (
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3 mb-6 max-w-3xl mx-auto">
+            {giftStars.map((star) => {
+              const isUnlocked = clickedStars.includes(star.id);
+              return (
+                <motion.button
+                  key={star.id}
+                  type="button"
+                  onClick={() => handleStarClick(star.id)}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                  aria-pressed={isUnlocked}
+                  className={`p-3 rounded-2xl border-2 border-cocoa text-left transition-all cursor-pointer flex flex-col justify-between min-h-[95px] sm:min-h-[110px] ${
+                    isUnlocked
+                      ? 'bg-sunshine shadow-sticker'
+                      : 'bg-cream-paper hover:bg-sunshine-soft shadow-sm'
+                  } ${star.id === 5 ? 'col-span-2 sm:col-span-1' : ''}`}
+                >
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-cocoa">
+                      STAR 0{star.id}
+                    </span>
+                    <div
+                      className={`w-6 h-6 rounded-full border border-cocoa flex items-center justify-center ${
+                        isUnlocked ? 'bg-cream-paper' : 'bg-sunshine'
                       }`}
-                    />
+                    >
+                      <Star
+                        className={`w-3.5 h-3.5 text-cocoa ${
+                          isUnlocked ? 'fill-sunshine-deep' : ''
+                        }`}
+                      />
+                    </div>
                   </div>
-                </div>
 
-                {isUnlocked ? (
-                  <div>
-                    <p className="font-heading text-sm sm:text-base font-bold text-cocoa leading-snug">
-                      &ldquo;{star.message}&rdquo;
+                  {isUnlocked ? (
+                    <div>
+                      <p className="font-heading text-xs font-bold text-cocoa leading-tight line-clamp-2">
+                        &ldquo;{star.message}&rdquo;
+                      </p>
+                      <p className="font-marathi text-[10px] font-bold text-cocoa-light truncate mt-0.5">
+                        {star.marathi}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-xs font-bold text-cocoa-light">
+                      Tap star #{star.id} ✨
                     </p>
-                    <p className="font-marathi text-xs font-bold text-cocoa-light mt-0.5">
-                      {star.marathi}
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-xs font-bold text-cocoa-light">
-                    Tap star #{star.id} to reveal ✨
-                  </p>
-                )}
-              </motion.button>
-            );
-          })}
-        </div>
+                  )}
+                </motion.button>
+              );
+            })}
+          </div>
+        )}
 
         {/* Gift Box Stage */}
-        <div className="paper-card rounded-3xl p-5 sm:p-8 bg-cream-paper text-center relative overflow-hidden">
-          <div className="washi-tape washi-tape-blue -top-3 left-1/2 -translate-x-1/2" />
+        <div className="paper-card rounded-3xl p-5 sm:p-7 bg-cream-paper text-center relative max-w-2xl mx-auto shadow-polaroid">
+          <div className="washi-tape washi-tape-blue -top-2.5 left-1/2 -translate-x-1/2" />
 
           {!allStarsClicked ? (
             <div className="py-4 flex flex-col items-center">
@@ -143,11 +145,11 @@ export const GiftReveal: React.FC<GiftRevealProps> = ({
                     ? {}
                     : {
                         rotate: [-1.5, 1.5, -1.5],
-                        y: [0, -5, 0],
+                        y: [0, -4, 0],
                       }
                 }
                 transition={{ duration: 2.2, repeat: Infinity }}
-                className="w-36 h-36 sm:w-44 sm:h-44 mb-4"
+                className="w-28 h-28 sm:w-32 sm:h-32 mb-3"
               >
                 <svg viewBox="0 0 200 200" fill="none" className="w-full h-full drop-shadow-md">
                   <path
@@ -169,14 +171,14 @@ export const GiftReveal: React.FC<GiftRevealProps> = ({
                 </svg>
               </motion.div>
 
-              <p className="font-heading text-lg sm:text-xl font-bold text-cocoa mb-3">
+              <p className="font-heading text-sm sm:text-base font-bold text-cocoa mb-3">
                 {5 - clickedStars.length} more star{5 - clickedStars.length === 1 ? '' : 's'} to open your gift box!
               </p>
 
               <button
                 type="button"
                 onClick={unlockAllStars}
-                className="px-5 py-2.5 rounded-2xl bg-blush hover:bg-blush-deep text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa shadow-sticker cursor-pointer transition-all"
+                className="px-5 py-2.5 rounded-xl bg-blush hover:bg-blush-deep text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa shadow-sticker cursor-pointer transition-all"
               >
                 Unlock All 5 Stars &amp; Open Box 🎁
               </button>
@@ -184,44 +186,37 @@ export const GiftReveal: React.FC<GiftRevealProps> = ({
           ) : (
             <AnimatePresence>
               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
+                initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4 }}
-                className="py-2 max-w-2xl mx-auto"
+                transition={{ duration: 0.35 }}
+                className="py-3 max-w-xl mx-auto"
               >
                 <div className="flex justify-center mb-3">
-                  <ShinchanMascot mood="love" className="w-24 h-24" />
+                  <ShinchanMascot mood="love" className="w-16 h-16 sm:w-20 sm:h-20" />
                 </div>
 
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sunshine border-2 border-cocoa text-xs font-extrabold text-cocoa mb-4 shadow-sticker">
+                <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-sunshine border border-cocoa text-xs font-extrabold text-cocoa mb-3 shadow-sticker">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>ALL 5 STARS UNLOCKED!</span>
                 </div>
 
-                <p className="text-base sm:text-xl font-bold text-cocoa leading-relaxed mb-5">
-                  &ldquo;Mumma, you&apos;ve spent so much of your life giving happiness to everyone around you. Today, there&apos;s something waiting just for you.&rdquo;
-                </p>
-
-                <div
-                  className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-sunshine via-blush-light to-skyblue-light border-3 border-cocoa shadow-polaroid mb-6"
-                  style={{ borderWidth: '3px' }}
-                >
-                  <h3 className="font-heading text-xl sm:text-3xl font-bold text-cocoa">
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-sunshine via-blush-light to-skyblue-light border-2 border-cocoa shadow-polaroid mb-4">
+                  <h3 className="font-heading text-lg sm:text-2xl font-bold text-cocoa">
                     YOUR REAL GIFT IS WAITING FOR YOU! 🎁
                   </h3>
-                  <p className="text-xs font-extrabold text-cocoa-light mt-1.5">
+                  <p className="text-xs font-extrabold text-cocoa-light mt-1">
                     (To be handed to you personally with the biggest hug!)
                   </p>
                 </div>
 
                 {/* Final Emotional Closing */}
-                <div className="space-y-3 pt-4 border-t-2 border-dashed border-cocoa/20">
+                <div className="space-y-3 pt-3 border-t-2 border-dashed border-cocoa/20">
                   <p className="font-handwritten text-2xl sm:text-3xl font-bold text-cocoa">
                     &ldquo;No matter how far I go, I&apos;ll always be your little boy.&rdquo;
                   </p>
 
-                  <div className="p-3.5 sm:p-4 rounded-2xl bg-sunshine-soft border-2 border-cocoa/20 inline-block">
-                    <p className="font-marathi text-lg sm:text-2xl font-bold text-cocoa leading-relaxed">
+                  <div className="p-3 sm:p-3.5 rounded-xl bg-sunshine-soft border border-cocoa/20 inline-block">
+                    <p className="font-marathi text-sm sm:text-base font-bold text-cocoa leading-relaxed">
                       &ldquo;तू आहेस म्हणून माझं जग इतकं सुंदर आहे. खूप प्रेम Mumma!&rdquo;
                     </p>
                   </div>
@@ -234,10 +229,10 @@ export const GiftReveal: React.FC<GiftRevealProps> = ({
                     <button
                       type="button"
                       onClick={onReplayAll}
-                      className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-sunshine hover:bg-sunshine-deep text-cocoa font-heading font-bold text-sm sm:text-base border-2 border-cocoa shadow-sticker cursor-pointer transition-all"
+                      className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-sunshine hover:bg-sunshine-deep text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa shadow-sticker cursor-pointer transition-all"
                     >
                       <RotateCcw className="w-4 h-4" />
-                      <span>Replay Birthday Experience From Start</span>
+                      <span>Scroll to Top</span>
                       <Heart className="w-4 h-4 fill-blush-deep text-cocoa" />
                     </button>
 
@@ -245,10 +240,10 @@ export const GiftReveal: React.FC<GiftRevealProps> = ({
                       <button
                         type="button"
                         onClick={onOpenJarModal}
-                        className="inline-flex items-center gap-2 px-4 py-3 rounded-2xl bg-cream hover:bg-blush-light text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa cursor-pointer transition-all"
+                        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-cream hover:bg-blush-light text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa cursor-pointer transition-all shadow-sm"
                       >
                         <Sparkles className="w-4 h-4" />
-                        <span>Open Appreciation Jar (24 Notes)</span>
+                        <span>Appreciation Jar (24 Notes)</span>
                       </button>
                     )}
                   </div>
@@ -258,6 +253,6 @@ export const GiftReveal: React.FC<GiftRevealProps> = ({
           )}
         </div>
       </div>
-    </section>
+    </div>
   );
 };

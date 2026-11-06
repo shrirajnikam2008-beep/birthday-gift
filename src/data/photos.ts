@@ -7,6 +7,7 @@ export interface PhotoItem {
   category: string;
   secondaryCategories: string[];
   museumCategory: string;
+  familyCategory?: string;
   peopleCount: number;
   subjects: string;
   description: string;

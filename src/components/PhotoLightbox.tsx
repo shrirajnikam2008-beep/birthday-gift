@@ -112,6 +112,11 @@ export const PhotoLightbox: React.FC<PhotoLightboxProps> = ({
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-3 mt-2 text-xs font-bold text-cocoa-light">
+                {currentPhoto.familyCategory && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-50 border border-rose-300 text-rose-800 font-extrabold">
+                    ❤️ {currentPhoto.familyCategory}
+                  </span>
+                )}
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-sunshine-soft border border-cocoa/20">
                   <Sparkles className="w-3 h-3 text-sunshine-deep" />
                   {currentPhoto.museumCategory}

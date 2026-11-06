@@ -15,6 +15,7 @@ export interface ChapterMeta {
   shortTitle: string;
   fullTitle: string;
   marathiSubtitle: string;
+  totalSlides: number;
   nextCtaLabel?: string;
 }
 
@@ -26,6 +27,7 @@ export const CHAPTERS: ChapterMeta[] = [
     shortTitle: 'WELCOME',
     fullTitle: '01 — WELCOME',
     marathiSubtitle: 'स्वागतम् • आजचा दिवस तुझा!',
+    totalSlides: 1,
     nextCtaLabel: "LET'S BEGIN ❤️",
   },
   {
@@ -35,6 +37,7 @@ export const CHAPTERS: ChapterMeta[] = [
     shortTitle: 'THE QUEEN',
     fullTitle: '02 — THE QUEEN',
     marathiSubtitle: 'आपल्या घराची राणी 👑',
+    totalSlides: 3,
     nextCtaLabel: 'NEXT: DISCOVER HER WORLD →',
   },
   {
@@ -44,6 +47,7 @@ export const CHAPTERS: ChapterMeta[] = [
     shortTitle: 'HER WORLD',
     fullTitle: '03 — HER WORLD',
     marathiSubtitle: 'शिकण्याची अखंड जिद्द 🎓',
+    totalSlides: 2,
     nextCtaLabel: 'NEXT: ENTER THE MEMORY MUSEUM →',
   },
   {
@@ -53,6 +57,7 @@ export const CHAPTERS: ChapterMeta[] = [
     shortTitle: 'MEMORIES',
     fullTitle: '04 — MEMORIES',
     marathiSubtitle: 'हजारो आठवणींचा ठेवा 📸',
+    totalSlides: 1,
     nextCtaLabel: 'NEXT: SOMETHING FROM MY HEART →',
   },
   {
@@ -62,6 +67,7 @@ export const CHAPTERS: ChapterMeta[] = [
     shortTitle: 'MY LETTERS',
     fullTitle: '05 — MY LETTERS',
     marathiSubtitle: 'मनातलं काही न बोललेलं 💌',
+    totalSlides: 6,
     nextCtaLabel: 'NEXT: A MESSAGE FROM OUR FAMILY →',
   },
   {
@@ -71,6 +77,7 @@ export const CHAPTERS: ChapterMeta[] = [
     shortTitle: 'OUR FAMILY',
     fullTitle: '06 — OUR FAMILY',
     marathiSubtitle: 'आपलं कुटुंब, आपलं प्रेम ❤️',
+    totalSlides: 4,
     nextCtaLabel: "NEXT: IT'S CAKE TIME →",
   },
   {
@@ -80,6 +87,7 @@ export const CHAPTERS: ChapterMeta[] = [
     shortTitle: 'CAKE TIME',
     fullTitle: '07 — CAKE TIME',
     marathiSubtitle: 'वाढदिवसाचा केक! 🎂',
+    totalSlides: 1,
     nextCtaLabel: 'DISCOVER YOUR SURPRISE 🎁',
   },
   {
@@ -89,6 +97,7 @@ export const CHAPTERS: ChapterMeta[] = [
     shortTitle: 'SURPRISE',
     fullTitle: '08 — SURPRISE',
     marathiSubtitle: 'खास तुझ्यासाठी सरप्राईज 🎁',
+    totalSlides: 1,
   },
 ];
 

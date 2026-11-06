@@ -3,14 +3,14 @@
 @tailwind utilities;
 
 @layer base {
-  html, body {
-    height: 100%;
-    overflow: hidden;
+  html {
+    scroll-behavior: smooth;
     color: #51463F;
     background-color: #FFF9EC;
   }
 
   body {
+    min-height: 100vh;
     font-family: 'Nunito', 'Noto Sans Devanagari', sans-serif;
     background-color: #FFF9EC;
     background-image: 
@@ -19,7 +19,7 @@
     background-size: 36px 36px;
     background-position: 0 0, 18px 18px;
     color: #51463F;
-    overflow: hidden;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, .font-heading {
