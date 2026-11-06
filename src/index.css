@@ -3,8 +3,9 @@
 @tailwind utilities;
 
 @layer base {
-  html {
-    scroll-behavior: smooth;
+  html, body {
+    height: 100%;
+    overflow: hidden;
     color: #51463F;
     background-color: #FFF9EC;
   }
@@ -18,7 +19,7 @@
     background-size: 36px 36px;
     background-position: 0 0, 18px 18px;
     color: #51463F;
-    overflow-x: hidden;
+    overflow: hidden;
   }
 
   h1, h2, h3, h4, .font-heading {
@@ -64,17 +65,16 @@
   background-color: rgba(157, 221, 242, 0.75);
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar for internal chapter containers */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #FFF9EC;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: #F6C9A8;
   border-radius: 9999px;
-  border: 2px solid #FFF9EC;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #F7B8C8;
