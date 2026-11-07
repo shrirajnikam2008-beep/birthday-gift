@@ -56,10 +56,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   const handleSelect = (id: ChapterId) => {
     onSelectChapter(id);
     setMenuOpen(false);
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
   };
 
   return (
@@ -67,12 +63,12 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Top Thin Storybook Progress Indicator */}
       <div className="w-full h-1 bg-cream-warm overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-sunshine via-blush to-mint transition-all duration-150"
+          className="h-full bg-gradient-to-r from-sunshine via-blush to-skyblue transition-all duration-150"
           style={{ width: `${scrollProgress}%` }}
         />
       </div>
 
-      <div className="max-w-7xl mx-auto px-2 sm:px-6 h-13 sm:h-16 flex items-center justify-between gap-1 sm:gap-2">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-1 sm:gap-2">
         {/* Left: Brand Pill (Scrolls to top) */}
         <button
           type="button"
@@ -113,7 +109,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Compact Storybook Chapter Picker Popover */}
           {menuOpen && (
             <div
-              className="absolute left-1/2 -translate-x-1/2 mt-2.5 w-72 sm:w-80 rounded-3xl bg-cream-paper border-3 border-cocoa shadow-polaroid p-3 z-50"
+              className="absolute left-1/2 -translate-x-1/2 mt-2.5 w-72 sm:w-80 rounded-3xl bg-cream-paper border-cocoa shadow-polaroid p-3 z-50"
               style={{ borderWidth: '3px' }}
             >
               <div className="px-2 py-1.5 mb-2 border-b border-dashed border-cocoa/20 flex items-center justify-between">

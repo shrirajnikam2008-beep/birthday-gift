@@ -14,7 +14,6 @@ import { getPhotoById } from '../data/photos';
 import { ShinchanMascot } from './ShinchanMascot';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { useAudio } from '../context/AudioContext';
-import { WaveReveal } from './WaveReveal';
 
 interface WelcomeScreenProps {
   isUnfolded: boolean;
@@ -97,12 +96,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         colors: ['#FFD95A', '#F7B8C8', '#9DDDF2', '#F6C9A8'],
       });
     }
-    const queenEl = document.getElementById('birthday-queen');
-    if (queenEl) {
-      queenEl.scrollIntoView({ behavior: 'smooth' });
-    } else if (onNext) {
-      onNext();
-    }
+    onNext?.();
   };
 
   return (
@@ -338,7 +332,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           /* =========================================================================
              STATE 2: THE CAKE IS CUT! THE FULL WELCOME STORY UNFOLDS
              ========================================================================= */
-          <WaveReveal immediate>
+          <>
             {/* Top Celebratory Banner */}
             <motion.div
               initial={{ opacity: 0, y: -15 }}
@@ -505,7 +499,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               <span>Scroll down to discover Chapter 02: The Queen</span>
               <ChevronDown className="w-4 h-4 text-cocoa" />
             </motion.div>
-          </WaveReveal>
+          </>
         )}
       </div>
     </div>

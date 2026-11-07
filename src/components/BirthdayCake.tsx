@@ -60,12 +60,7 @@ export const BirthdayCake: React.FC<BirthdayCakeProps> = ({ resetKey = 0, onNext
   };
 
   const scrollToGift = () => {
-    const giftEl = document.getElementById('gift-reveal');
-    if (giftEl) {
-      giftEl.scrollIntoView({ behavior: 'smooth' });
-    } else if (onNext) {
-      onNext();
-    }
+    onNext?.();
   };
 
   return (
