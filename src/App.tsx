@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { Sparkles, ArrowUp } from 'lucide-react';
 import { CHAPTERS, ChapterId } from './data/chapters';
 import { Navbar } from './components/Navbar';
 import { FloatingDecorations } from './components/FloatingDecorations';
@@ -59,7 +60,6 @@ export function App() {
     void waterController
       .play({ onPeak: () => jumpTo(targetId) })
       .finally(() => {
-        // allow scroll-driven splashes again once the page has settled
         window.setTimeout(() => {
           if (!waterController.isBusy()) programmaticRef.current = false;
         }, 400);
@@ -121,127 +121,177 @@ export function App() {
   return (
     <AudioProvider>
       <div className="min-h-screen w-full relative flex flex-col bg-cream selection:bg-sunshine selection:text-cocoa overflow-x-hidden">
-      <FloatingDecorations />
-      <WaterTransition />
+        <FloatingDecorations />
+        <WaterTransition />
 
-      {/* Top Storybook Sticky Header & Dynamic Scroll Progress */}
-      <Navbar
-        currentChapterId={currentChapterId}
-        onSelectChapter={(id) => navigateToChapter(id)}
-        onOpenJarModal={() => setJarModalOpen(true)}
-      />
+        {/* Top Storybook Sticky Header & Dynamic Scroll Progress */}
+        <Navbar
+          currentChapterId={currentChapterId}
+          onSelectChapter={(id) => {
+            if (!isUniverseUnfolded && id !== 'welcome') {
+              void waterController.play({
+                onPeak: () => {
+                  setIsUniverseUnfolded(true);
+                  window.setTimeout(() => jumpTo(id), 80);
+                },
+              });
+              currentRef.current = id;
+              setCurrentChapterId(id);
+              return;
+            }
+            navigateToChapter(id);
+          }}
+          onOpenJarModal={() => setJarModalOpen(true)}
+        />
 
-      {/* Main Continuous Scrollable Story Stream */}
-      <main className="flex-1 w-full relative z-10">
-        {/* =========================================================================
-            CHAPTER 01: WELCOME (OPENING CAKE CEREMONY & STORY INTRODUCTION)
-            ========================================================================= */}
-        <section id="welcome" className="snap-start relative scroll-mt-16">
-          <WelcomeScreen
-            isUnfolded={isUniverseUnfolded}
-            onUnfold={() => void waterController.play({ onPeak: () => setIsUniverseUnfolded(true) })}
-            onNext={() => navigateToChapter('birthday-queen')}
-            onReplay={() => setIsUniverseUnfolded(false)}
-          />
-        </section>
+        {/* Main Continuous Scrollable Story Stream */}
+        <main className="flex-1 w-full relative z-10">
+          {/* =========================================================================
+              CHAPTER 01: WELCOME (OPENING CAKE CEREMONY & STORY INTRODUCTION)
+              ========================================================================= */}
+          <section id="welcome" className="snap-start relative scroll-mt-16">
+            <WelcomeScreen
+              isUnfolded={isUniverseUnfolded}
+              onUnfold={() => void waterController.play({ onPeak: () => setIsUniverseUnfolded(true) })}
+              onNext={() => navigateToChapter('birthday-queen')}
+              onReplay={() => setIsUniverseUnfolded(false)}
+            />
+          </section>
 
-        {!isUniverseUnfolded ? (
-          <div className="py-12 sm:py-16 px-4 text-center">
-            <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-cream-paper border-2 border-dashed border-cocoa/30 shadow-sm text-xs sm:text-sm font-extrabold text-cocoa">
-              <span>🎂 Cut the cake above to unfold all chapters of Mumma&apos;s Little Universe!</span>
-            </div>
-          </div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 35 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-          >
-
-            {/* =========================================================================
-                CHAPTER 02: THE QUEEN
-                ========================================================================= */}
-            <section id="birthday-queen" className="snap-start relative scroll-mt-16">
-              <BirthdayQueen />
-            </section>
-
-            {/* =========================================================================
-                CHAPTER 03: HER WORLD & ACADEMIC LEGEND
-                ========================================================================= */}
-            <section id="academic-legend" className="snap-start relative scroll-mt-16">
-              <AcademicJourney />
-            </section>
-
-            {/* =========================================================================
-                CHAPTER 04: THE MEMORY MUSEUM (ALL 44 UNIQUE PHOTOGRAPHS)
-                ========================================================================= */}
-            <section id="memory-museum" className="snap-start relative scroll-mt-16">
-              <MemoryMuseum />
-            </section>
-
-            {/* =========================================================================
-                CHAPTER 05: FIVE LETTERS FROM THE HEART
-                ========================================================================= */}
-            <section id="letters" className="snap-start relative scroll-mt-16">
-              <LetterEnvelopes />
-            </section>
-
-            {/* =========================================================================
-                CHAPTER 06: OUR FAMILY
-                ========================================================================= */}
-            <section id="family" className="snap-start relative scroll-mt-16">
-              <FamilyMessages />
-            </section>
-
-            {/* =========================================================================
-                CHAPTER 07: THE BIRTHDAY CAKE
-                ========================================================================= */}
-            <section id="birthday-cake" className="snap-start relative scroll-mt-16">
-              <BirthdayCake
-                resetKey={replayKey}
-                onNext={() => navigateToChapter('gift-reveal')}
-              />
-            </section>
-
-            {/* =========================================================================
-                CHAPTER 08: THE FINAL SURPRISE & GRAND FINALE
-                ========================================================================= */}
-            <section id="gift-reveal" className="snap-start relative scroll-mt-16">
-              <GiftReveal
-                resetKey={replayKey}
-                onReplayAll={handleReplay}
-                onOpenJarModal={() => setJarModalOpen(true)}
-              />
-            </section>
-
-            {/* Global Storybook Footer Note */}
-            <footer className="py-12 px-4 text-center border-t border-cocoa/15 bg-cream-paper/70 backdrop-blur-xs">
-              <div className="max-w-md mx-auto space-y-2">
-                <p className="font-heading text-sm sm:text-base font-bold text-cocoa">
-                  THE NISHA UNIVERSE • HAPPY BIRTHDAY MUMMA ❤️
-                </p>
-                <p className="font-marathi text-xs sm:text-sm font-bold text-cocoa-light">
-                  &ldquo;तू आहेस म्हणून आमचं जग सुंदर आहे!&rdquo;
-                </p>
-                <p className="text-[11px] font-bold text-cocoa/60 pt-2">
-                  Designed &amp; coded with boundless love by Shriraj • 9 November 2026
-                </p>
+          {!isUniverseUnfolded ? (
+            <div className="py-12 sm:py-16 px-4 text-center">
+              <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-cream-paper border-2 border-dashed border-cocoa/35 shadow-sm text-xs sm:text-sm font-extrabold text-cocoa">
+                <span>🎂 Cut the cake above to unfold all 8 chapters of Mumma&apos;s Little Universe!</span>
               </div>
-            </footer>
-          </motion.div>
-        )}
-      </main>
+            </div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 35 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {/* =========================================================================
+                  CHAPTER 02: THE QUEEN
+                  ========================================================================= */}
+              <section id="birthday-queen" className="snap-start relative scroll-mt-16">
+                <BirthdayQueen onNext={() => navigateToChapter('academic-legend')} />
+              </section>
 
-      {/* Appreciation Jar Modal (Accessible anytime from Navbar or Final Chapter) */}
-      <AppreciationJar
-        isOpen={jarModalOpen}
-        onClose={() => setJarModalOpen(false)}
-      />
+              {/* =========================================================================
+                  CHAPTER 03: HER WORLD & ACADEMIC LEGEND
+                  ========================================================================= */}
+              <section id="academic-legend" className="snap-start relative scroll-mt-16">
+                <AcademicJourney onNext={() => navigateToChapter('memory-museum')} />
+              </section>
 
-      {/* Marathi Birthday Song Player Modal Drawer */}
-      <AudioPlayerDrawer />
-    </div>
-  </AudioProvider>
+              {/* =========================================================================
+                  CHAPTER 04: THE MEMORY MUSEUM (ALL 44 UNIQUE PHOTOGRAPHS)
+                  ========================================================================= */}
+              <section id="memory-museum" className="snap-start relative scroll-mt-16">
+                <MemoryMuseum onNext={() => navigateToChapter('letters')} />
+              </section>
+
+              {/* =========================================================================
+                  CHAPTER 05: FIVE LETTERS FROM THE HEART
+                  ========================================================================= */}
+              <section id="letters" className="snap-start relative scroll-mt-16">
+                <LetterEnvelopes onNext={() => navigateToChapter('family')} />
+              </section>
+
+              {/* =========================================================================
+                  CHAPTER 06: OUR FAMILY
+                  ========================================================================= */}
+              <section id="family" className="snap-start relative scroll-mt-16">
+                <FamilyMessages onNext={() => navigateToChapter('birthday-cake')} />
+              </section>
+
+              {/* =========================================================================
+                  CHAPTER 07: THE BIRTHDAY CAKE
+                  ========================================================================= */}
+              <section id="birthday-cake" className="snap-start relative scroll-mt-16">
+                <BirthdayCake
+                  resetKey={replayKey}
+                  onNext={() => navigateToChapter('gift-reveal')}
+                />
+              </section>
+
+              {/* =========================================================================
+                  CHAPTER 08: THE FINAL SURPRISE & GRAND FINALE
+                  ========================================================================= */}
+              <section id="gift-reveal" className="snap-start relative scroll-mt-16">
+                <GiftReveal
+                  resetKey={replayKey}
+                  onReplayAll={handleReplay}
+                  onOpenJarModal={() => setJarModalOpen(true)}
+                />
+              </section>
+
+              {/* Global Storybook Colophon & Quick Chapter Index Footer */}
+              <footer className="py-12 px-4 text-center border-t-2 border-cocoa/15 bg-cream-paper/85 backdrop-blur-xs">
+                <div className="max-w-3xl mx-auto space-y-4">
+                  <div className="flex flex-wrap items-center justify-center gap-1.5">
+                    {CHAPTERS.map((chap) => (
+                      <button
+                        key={chap.id}
+                        type="button"
+                        onClick={() => navigateToChapter(chap.id)}
+                        className={`px-2.5 py-1 rounded-full text-[11px] font-extrabold border transition-all cursor-pointer ${
+                          currentChapterId === chap.id
+                            ? 'bg-sunshine border-cocoa text-cocoa shadow-2xs'
+                            : 'bg-cream border-cocoa/25 text-cocoa-light hover:border-cocoa hover:text-cocoa'
+                        }`}
+                      >
+                        {chap.number} • {chap.shortTitle}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="space-y-1.5 pt-2">
+                    <p className="font-heading text-sm sm:text-base font-bold text-cocoa">
+                      THE NISHA UNIVERSE • HAPPY BIRTHDAY MUMMA ❤️
+                    </p>
+                    <p className="font-marathi text-xs sm:text-sm font-bold text-cocoa-light">
+                      &ldquo;तू आहेस म्हणून आमचं जग सुंदर आहे!&rdquo;
+                    </p>
+                    <p className="text-[11px] font-bold text-cocoa/65 pt-1">
+                      Designed &amp; coded with boundless love by Shriraj • 9 November 2026
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setJarModalOpen(true)}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blush-light hover:bg-blush border border-cocoa text-xs font-extrabold text-cocoa cursor-pointer transition-colors"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>24 Appreciation Notes</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => navigateToChapter('welcome')}
+                      className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-cream hover:bg-sunshine-soft border border-cocoa text-xs font-extrabold text-cocoa cursor-pointer transition-colors"
+                    >
+                      <ArrowUp className="w-3.5 h-3.5" />
+                      <span>Back to Top</span>
+                    </button>
+                  </div>
+                </div>
+              </footer>
+            </motion.div>
+          )}
+        </main>
+
+        {/* Appreciation Jar Modal (Accessible anytime from Navbar or Final Chapter) */}
+        <AppreciationJar
+          isOpen={jarModalOpen}
+          onClose={() => setJarModalOpen(false)}
+        />
+
+        {/* Marathi Birthday Song Player Modal Drawer */}
+        <AudioPlayerDrawer />
+      </div>
+    </AudioProvider>
   );
 }
 

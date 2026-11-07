@@ -1,5 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, Music, Compass, ChevronDown, Heart, Sparkles, Check, SlidersHorizontal } from 'lucide-react';
+import {
+  Volume2,
+  Music,
+  Compass,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+  Sparkles,
+  Check,
+  SlidersHorizontal,
+} from 'lucide-react';
 import { CHAPTERS, ChapterId, getChapterById } from '../data/chapters';
 import { useAudio } from '../context/AudioContext';
 
@@ -20,6 +31,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const { isPlaying, activeTrack, togglePlay, toggleDrawer } = useAudio();
   const activeChapter = getChapterById(currentChapterId);
+  const currentIndex = activeChapter.index;
+  const prevChapter = currentIndex > 0 ? CHAPTERS[currentIndex - 1] : null;
+  const nextChapter = currentIndex < CHAPTERS.length - 1 ? CHAPTERS[currentIndex + 1] : null;
 
   // Track overall page scroll progress for the top indicator bar
   useEffect(() => {
@@ -59,9 +73,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-cream/95 backdrop-blur-md border-b-2 border-cocoa/15 shadow-sm transition-all overflow-x-hidden">
+    <header className="sticky top-0 z-40 w-full bg-cream/95 backdrop-blur-md border-b-2 border-cocoa/15 shadow-sm transition-all">
       {/* Top Thin Storybook Progress Indicator */}
-      <div className="w-full h-1 bg-cream-warm overflow-hidden">
+      <div className="w-full h-1.5 bg-cream-warm overflow-hidden">
         <div
           className="h-full bg-gradient-to-r from-sunshine via-blush to-skyblue transition-all duration-150"
           style={{ width: `${scrollProgress}%` }}
@@ -73,7 +87,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button
           type="button"
           onClick={() => handleSelect('welcome')}
-          className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-sunshine border-2 border-cocoa shadow-sticker hover:-translate-y-0.5 transition-transform cursor-pointer shrink-0"
+          className="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-full bg-sunshine hover:bg-sunshine-light active:scale-95 border-2 border-cocoa shadow-sticker hover:-translate-y-0.5 transition-all cursor-pointer shrink-0"
         >
           <Heart className="w-3.5 h-3.5 text-cocoa fill-blush-deep shrink-0" />
           <span className="font-heading font-bold text-xs sm:text-sm tracking-wide text-cocoa">
@@ -82,14 +96,26 @@ export const Navbar: React.FC<NavbarProps> = ({
           </span>
         </button>
 
-        {/* Center: Compact Active Chapter Indicator + Smooth Scroll Chapter Menu */}
-        <div className="relative shrink-0" ref={dropdownRef}>
+        {/* Center: Quick Prev/Next Arrows + Active Chapter Picker */}
+        <div className="relative flex items-center gap-1 shrink-0" ref={dropdownRef}>
+          {prevChapter && (
+            <button
+              type="button"
+              onClick={() => handleSelect(prevChapter.id)}
+              aria-label={`Previous chapter: ${prevChapter.shortTitle}`}
+              title={`Previous: ${prevChapter.fullTitle}`}
+              className="hidden md:inline-flex items-center justify-center w-8 h-8 rounded-full bg-cream-paper hover:bg-sunshine-soft active:scale-95 border-2 border-cocoa shadow-xs text-cocoa transition-all cursor-pointer"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          )}
+
           <button
             type="button"
             onClick={() => setMenuOpen((prev) => !prev)}
             aria-expanded={menuOpen}
             aria-label={`Current chapter: ${activeChapter.number} of 08, ${activeChapter.shortTitle}. Click to open chapter index`}
-            className="inline-flex items-center gap-1 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-full bg-cream border-2 border-cocoa shadow-sticker hover:bg-sunshine-soft transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-full bg-cream-paper border-2 border-cocoa shadow-sticker hover:bg-sunshine-soft active:scale-95 transition-all cursor-pointer"
           >
             <Compass className="w-3.5 h-3.5 text-cocoa-light hidden xs:inline" />
             <span className="font-heading text-xs sm:text-sm font-bold text-cocoa">
@@ -106,10 +132,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             />
           </button>
 
+          {nextChapter && (
+            <button
+              type="button"
+              onClick={() => handleSelect(nextChapter.id)}
+              aria-label={`Next chapter: ${nextChapter.shortTitle}`}
+              title={`Next: ${nextChapter.fullTitle}`}
+              className="hidden md:inline-flex items-center justify-center w-8 h-8 rounded-full bg-cream-paper hover:bg-sunshine-soft active:scale-95 border-2 border-cocoa shadow-xs text-cocoa transition-all cursor-pointer"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          )}
+
           {/* Compact Storybook Chapter Picker Popover */}
           {menuOpen && (
             <div
-              className="absolute left-1/2 -translate-x-1/2 mt-2.5 w-72 sm:w-80 rounded-3xl bg-cream-paper border-cocoa shadow-polaroid p-3 z-50"
+              className="absolute top-full left-1/2 -translate-x-1/2 mt-2.5 w-72 sm:w-80 rounded-3xl bg-cream-paper border-cocoa shadow-polaroid p-3.5 z-50"
               style={{ borderWidth: '3px' }}
             >
               <div className="px-2 py-1.5 mb-2 border-b border-dashed border-cocoa/20 flex items-center justify-between">
@@ -121,6 +159,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </span>
               </div>
 
+              {/* 8-Step Mini Progress Dots */}
+              <div className="flex items-center gap-1 px-2 mb-2.5">
+                {CHAPTERS.map((chap, idx) => (
+                  <div
+                    key={chap.id}
+                    className={`h-1.5 flex-1 rounded-full transition-colors ${
+                      idx <= currentIndex ? 'bg-sunshine-deep' : 'bg-cocoa/15'
+                    }`}
+                  />
+                ))}
+              </div>
+
               <div className="space-y-1 max-h-[65vh] overflow-y-auto pr-1">
                 {CHAPTERS.map((chap) => {
                   const isCurrent = chap.id === currentChapterId;
@@ -129,17 +179,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                       key={chap.id}
                       type="button"
                       onClick={() => handleSelect(chap.id)}
-                      className={`w-full px-3 py-2 rounded-2xl text-left flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                      className={`w-full px-3 py-2 rounded-2xl text-left flex items-center justify-between gap-2 transition-all cursor-pointer ${
                         isCurrent
                           ? 'bg-sunshine border-2 border-cocoa font-extrabold text-cocoa shadow-sm'
                           : 'hover:bg-cream border-2 border-transparent font-bold text-cocoa'
                       }`}
                     >
-                      <div>
-                        <div className="font-heading text-xs sm:text-sm text-cocoa">
-                          {chap.number} • {chap.fullTitle}
+                      <div className="min-w-0">
+                        <div className="font-heading text-xs sm:text-sm text-cocoa truncate">
+                          {chap.fullTitle}
                         </div>
-                        <div className="font-marathi text-[11px] text-cocoa-light">
+                        <div className="font-marathi text-[11px] text-cocoa-light truncate">
                           {chap.marathiSubtitle}
                         </div>
                       </div>
@@ -157,11 +207,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onOpenJarModal}
-            className="inline-flex items-center gap-1 p-1.5 sm:px-3 sm:py-1.5 rounded-full bg-blush-light hover:bg-blush text-cocoa border-2 border-cocoa shadow-sticker text-xs font-extrabold transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1 p-1.5 sm:px-3 sm:py-1.5 rounded-full bg-blush-light hover:bg-blush active:scale-95 text-cocoa border-2 border-cocoa shadow-sticker text-xs font-extrabold transition-all cursor-pointer"
             title="Open the Appreciation Jar (24 notes)"
           >
             <Sparkles className="w-3.5 h-3.5 text-cocoa shrink-0" />
-            <span className="hidden sm:inline">Jar</span>
+            <span className="hidden sm:inline">24 Notes</span>
           </button>
 
           {/* Marathi Birthday Song Button with Clip Selector */}

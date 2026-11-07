@@ -1,10 +1,24 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Edit3, Check, RotateCcw, Sparkles, Star } from 'lucide-react';
+import {
+  Heart,
+  Edit3,
+  Check,
+  RotateCcw,
+  Sparkles,
+  Star,
+  ArrowRight,
+  Maximize2,
+} from 'lucide-react';
 import { familyMessages } from '../data/messages';
-import { getPhotoById } from '../data/photos';
+import { getPhotoById, PhotoItem } from '../data/photos';
+import { PhotoLightbox } from './PhotoLightbox';
 
-export const FamilyMessages: React.FC = () => {
+interface FamilyMessagesProps {
+  onNext?: () => void;
+}
+
+export const FamilyMessages: React.FC<FamilyMessagesProps> = ({ onNext }) => {
   const defaultPapaText = familyMessages[0].paragraphs.join('\n\n');
   const [papaText, setPapaText] = useState<string>(() => {
     try {
@@ -14,6 +28,7 @@ export const FamilyMessages: React.FC = () => {
     }
   });
   const [isEditingPapa, setIsEditingPapa] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const handleSavePapa = () => {
     try {
@@ -41,6 +56,21 @@ export const FamilyMessages: React.FC = () => {
   const highlightPhoto2 = getPhotoById('photo-024'); // Festive family gathering
   const highlightPhoto3 = getPhotoById('photo-031'); // Evening chai together
   const highlightPhoto4 = getPhotoById('photo-040'); // Mumma holding baby Shriraj
+
+  const chapterPhotos: PhotoItem[] = [
+    familyCoverPhoto,
+    papaPhoto,
+    sonPhoto,
+    highlightPhoto1,
+    highlightPhoto2,
+    highlightPhoto3,
+    highlightPhoto4,
+  ].filter((p): p is PhotoItem => p !== undefined);
+
+  const openPhotoInLightbox = (photoId: string) => {
+    const idx = chapterPhotos.findIndex((p) => p.id === photoId);
+    if (idx !== -1) setLightboxIndex(idx);
+  };
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -79,12 +109,21 @@ export const FamilyMessages: React.FC = () => {
           <div className="washi-tape washi-tape-pink -top-2.5 left-1/2 -translate-x-1/2" />
 
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 sm:gap-7 items-center">
-            <div className="sm:col-span-6 w-full h-52 sm:h-64 rounded-2xl overflow-hidden border-2 border-cocoa/20 bg-cream-warm flex items-center justify-center">
+            <div
+              onClick={() => openPhotoInLightbox(familyCoverPhoto.id)}
+              className="sm:col-span-6 w-full h-56 sm:h-68 rounded-2xl overflow-hidden border-2 border-cocoa/20 bg-cream-warm flex items-center justify-center relative group cursor-pointer"
+            >
+              <span className="photo-corner-tl" />
+              <span className="photo-corner-br" />
               <img
                 src={familyCoverPhoto.src}
                 alt={familyCoverPhoto.description}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain group-hover:scale-102 transition-transform"
               />
+              <span className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-full bg-cream-paper/90 border border-cocoa/30 text-[10px] font-extrabold text-cocoa flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Maximize2 className="w-3 h-3" />
+                Enlarge
+              </span>
             </div>
 
             <div className="sm:col-span-6 text-left">
@@ -101,7 +140,7 @@ export const FamilyMessages: React.FC = () => {
                 Ahead are two personal birthday letters written with the deepest love, gratitude, and pride.
               </p>
 
-              <div className="p-3 rounded-2xl bg-sunshine-soft border border-cocoa/20">
+              <div className="p-3 rounded-2xl bg-sunshine-soft border-2 border-cocoa/20">
                 <p className="font-marathi text-xs sm:text-sm font-bold text-cocoa">
                   &ldquo;आपलं घर, आपलं हसणं आणि आपल्या सगळ्या आठवणी तुझाच आधार आहेत ❤️&rdquo;
                 </p>
@@ -160,23 +199,30 @@ export const FamilyMessages: React.FC = () => {
 
             {/* Papa Photo Preview */}
             {papaPhoto && (
-              <div className="mb-4 flex items-center gap-3 p-2 rounded-2xl bg-cream-warm border border-cocoa/20">
-                <div className="w-16 h-16 rounded-xl overflow-hidden border border-cocoa/30 bg-cream shrink-0 flex items-center justify-center">
-                  <img
-                    src={papaPhoto.src}
-                    alt={papaPhoto.description}
-                    className="w-full h-full object-cover object-top"
-                  />
+              <button
+                type="button"
+                onClick={() => openPhotoInLightbox(papaPhoto.id)}
+                className="w-full mb-4 flex items-center justify-between gap-3 p-2.5 rounded-2xl bg-cream-warm hover:bg-sunshine-soft/60 border border-cocoa/25 transition-colors cursor-pointer text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-16 h-16 rounded-xl overflow-hidden border border-cocoa/30 bg-cream shrink-0 flex items-center justify-center">
+                    <img
+                      src={papaPhoto.src}
+                      alt={papaPhoto.description}
+                      className="w-full h-full object-cover object-top"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-extrabold text-cocoa-light uppercase block">
+                      Memories together
+                    </span>
+                    <p className="font-handwritten text-base font-bold text-cocoa">
+                      Mumma &amp; Papa 🌊❤️
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-[10px] font-extrabold text-cocoa-light uppercase">
-                    Memories together
-                  </span>
-                  <p className="font-handwritten text-sm font-bold text-cocoa">
-                    Mumma &amp; Papa 🌊❤️
-                  </p>
-                </div>
-              </div>
+                <Maximize2 className="w-4 h-4 text-cocoa-light mr-1 shrink-0" />
+              </button>
             )}
 
             {isEditingPapa ? (
@@ -185,7 +231,7 @@ export const FamilyMessages: React.FC = () => {
                   rows={5}
                   value={papaText}
                   onChange={(e) => setPapaText(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-cream border-2 border-cocoa text-xs sm:text-sm font-semibold text-cocoa focus:outline-none"
+                  className="w-full p-3 rounded-xl bg-cream border-2 border-cocoa text-xs sm:text-sm font-semibold text-cocoa"
                 />
                 <div className="flex items-center gap-2">
                   <button
@@ -206,12 +252,12 @@ export const FamilyMessages: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="space-y-2 text-xs sm:text-sm font-semibold text-cocoa leading-relaxed">
+              <div className="space-y-2.5 text-xs sm:text-sm font-semibold text-cocoa leading-relaxed">
                 {papaText.split('\n\n').map((para, i) => (
                   <p
                     key={i}
                     className={
-                      i === 0 ? 'font-handwritten text-base sm:text-lg font-bold text-cocoa' : ''
+                      i === 0 ? 'font-handwritten text-lg sm:text-xl font-bold text-cocoa' : ''
                     }
                   >
                     {para}
@@ -223,7 +269,7 @@ export const FamilyMessages: React.FC = () => {
 
           <div className="mt-4 pt-3 border-t border-cocoa/15 flex items-center justify-between">
             <span className="text-xs font-bold text-cocoa-light">With all my love &amp; respect</span>
-            <span className="font-handwritten text-lg sm:text-xl font-bold text-cocoa">
+            <span className="font-handwritten text-xl sm:text-2xl font-bold text-cocoa">
               — Papa ❤️
             </span>
           </div>
@@ -257,31 +303,38 @@ export const FamilyMessages: React.FC = () => {
 
             {/* Son Photo Preview */}
             {sonPhoto && (
-              <div className="mb-4 flex items-center gap-3 p-2 rounded-2xl bg-cream-warm border border-cocoa/20">
-                <div className="w-16 h-16 rounded-xl overflow-hidden border border-cocoa/30 bg-cream shrink-0 flex items-center justify-center">
-                  <img
-                    src={sonPhoto.src}
-                    alt={sonPhoto.description}
-                    className="w-full h-full object-cover object-top"
-                  />
+              <button
+                type="button"
+                onClick={() => openPhotoInLightbox(sonPhoto.id)}
+                className="w-full mb-4 flex items-center justify-between gap-3 p-2.5 rounded-2xl bg-cream-warm hover:bg-sunshine-soft/60 border border-cocoa/25 transition-colors cursor-pointer text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-16 h-16 rounded-xl overflow-hidden border border-cocoa/30 bg-cream shrink-0 flex items-center justify-center">
+                    <img
+                      src={sonPhoto.src}
+                      alt={sonPhoto.description}
+                      className="w-full h-full object-cover object-top"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-extrabold text-cocoa-light uppercase block">
+                      Mother &amp; Son
+                    </span>
+                    <p className="font-handwritten text-base font-bold text-cocoa">
+                      Mumma &amp; Shriraj ❤️
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-[10px] font-extrabold text-cocoa-light uppercase">
-                    Mother &amp; Son
-                  </span>
-                  <p className="font-handwritten text-sm font-bold text-cocoa">
-                    Mumma &amp; Shriraj ❤️
-                  </p>
-                </div>
-              </div>
+                <Maximize2 className="w-4 h-4 text-cocoa-light mr-1 shrink-0" />
+              </button>
             )}
 
-            <div className="space-y-2 text-xs sm:text-sm font-semibold text-cocoa leading-relaxed">
+            <div className="space-y-2.5 text-xs sm:text-sm font-semibold text-cocoa leading-relaxed">
               {familyMessages[1].paragraphs.map((para, i) => (
                 <p
                   key={i}
                   className={
-                    i === 0 ? 'font-handwritten text-base sm:text-lg font-bold text-cocoa' : ''
+                    i === 0 ? 'font-handwritten text-lg sm:text-xl font-bold text-cocoa' : ''
                   }
                 >
                   {para}
@@ -292,7 +345,7 @@ export const FamilyMessages: React.FC = () => {
 
           <div className="mt-4 pt-3 border-t border-cocoa/15 flex items-center justify-between">
             <span className="text-xs font-bold text-cocoa-light">Always your little boy</span>
-            <span className="font-handwritten text-lg sm:text-xl font-bold text-cocoa">
+            <span className="font-handwritten text-xl sm:text-2xl font-bold text-cocoa">
               — Shriraj ❤️
             </span>
           </div>
@@ -314,38 +367,72 @@ export const FamilyMessages: React.FC = () => {
           </h3>
 
           <p className="text-xs sm:text-sm font-bold text-cocoa-light mt-1">
-            Four cherished moments of warmth, laughter, and togetherness.
+            Tap any snapshot below to inspect in full resolution
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 sm:gap-4 max-w-4xl mx-auto">
           {[highlightPhoto1, highlightPhoto2, highlightPhoto3, highlightPhoto4].map(
             (photo, idx) =>
               photo && (
-                <motion.div
+                <motion.button
                   key={photo.id}
+                  type="button"
+                  onClick={() => openPhotoInLightbox(photo.id)}
                   initial={{ opacity: 0, y: 12 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.15 }}
                   transition={{ delay: idx * 0.08 }}
-                  className="paper-card rounded-2xl p-2.5 pb-3 bg-cream-paper flex flex-col justify-between hover:-translate-y-1 transition-transform"
+                  className="paper-card-interactive rounded-2xl p-2.5 pb-3 bg-cream-paper flex flex-col justify-between cursor-pointer group text-center"
                 >
-                  <div className="w-full h-36 sm:h-44 rounded-xl overflow-hidden border border-cocoa/20 bg-cream-warm mb-2 flex items-center justify-center">
+                  <div className="relative w-full h-40 sm:h-48 rounded-xl overflow-hidden border border-cocoa/20 bg-cream-warm mb-2 flex items-center justify-center">
                     <img
                       src={photo.src}
                       alt={photo.description}
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-contain group-hover:scale-105 transition-transform"
                       loading="lazy"
                     />
                   </div>
-                  <p className="font-handwritten text-xs sm:text-sm font-bold text-center text-cocoa line-clamp-1">
+                  <p className="font-handwritten text-sm sm:text-base font-bold text-center text-cocoa line-clamp-1">
                     {photo.caption}
                   </p>
-                </motion.div>
+                </motion.button>
               )
           )}
         </div>
       </div>
+
+      {/* Chapter 06 Next Chapter Bridge CTA */}
+      {onNext && (
+        <div className="mt-10 sm:mt-12 text-center">
+          <button
+            type="button"
+            onClick={onNext}
+            className="group inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-sunshine hover:bg-sunshine-deep active:scale-95 text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa shadow-sticker hover:shadow-stickerHover hover:-translate-y-0.5 transition-all cursor-pointer"
+          >
+            <span>NEXT: IT&apos;S BIRTHDAY CAKE TIME (CHAPTER 07) 🎂</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </button>
+        </div>
+      )}
+
+      {/* Lightbox for Family Chapter Photos */}
+      <PhotoLightbox
+        photos={chapterPhotos}
+        currentIndex={lightboxIndex}
+        onClose={() => setLightboxIndex(null)}
+        onPrev={() =>
+          setLightboxIndex((prev) =>
+            prev === null ? null : (prev - 1 + chapterPhotos.length) % chapterPhotos.length
+          )
+        }
+        onNext={() =>
+          setLightboxIndex((prev) =>
+            prev === null ? null : (prev + 1) % chapterPhotos.length
+          )
+        }
+        onSelectIndex={(idx) => setLightboxIndex(idx)}
+      />
     </div>
   );
 };

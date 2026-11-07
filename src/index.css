@@ -7,34 +7,46 @@
     scroll-behavior: smooth;
     color: #51463F;
     background-color: #FFF9EC;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
     min-height: 100vh;
     font-family: 'Nunito', 'Noto Sans Devanagari', sans-serif;
     background-color: #FFF9EC;
-    background-image: 
-      radial-gradient(#F6C9A8 0.85px, transparent 0.85px), 
-      radial-gradient(#F7B8C8 0.85px, #FFF9EC 0.85px);
-    background-size: 36px 36px;
-    background-position: 0 0, 18px 18px;
+    background-image:
+      radial-gradient(rgba(246, 201, 168, 0.55) 1px, transparent 1px),
+      radial-gradient(rgba(247, 184, 200, 0.45) 1px, #FFF9EC 1px);
+    background-size: 38px 38px;
+    background-position: 0 0, 19px 19px;
     color: #51463F;
     overflow-x: hidden;
   }
 
   h1, h2, h3, h4, .font-heading {
     font-family: 'Fredoka', 'Noto Sans Devanagari', sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  /* Accessible keyboard focus ring */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: 2.5px solid #51463F;
+    outline-offset: 2px;
   }
 }
 
-/* Custom Scrapbook & Paper Utilities */
+/* Custom Scrapbook, Editorial & Paper Utilities */
 .paper-lined {
   background-color: #FFFDF7;
   background-image: repeating-linear-gradient(
     transparent,
     transparent 31px,
-    rgba(157, 221, 242, 0.38) 31px,
-    rgba(157, 221, 242, 0.38) 32px
+    rgba(157, 221, 242, 0.42) 31px,
+    rgba(157, 221, 242, 0.42) 32px
   );
   line-height: 32px;
 }
@@ -42,27 +54,104 @@
 .paper-card {
   background-color: #FFFDF7;
   border: 2.5px solid #51463F;
+  box-shadow: 5px 5px 0px rgba(81, 70, 63, 0.16), 0 10px 24px -8px rgba(81, 70, 63, 0.08);
+}
+
+.paper-card-interactive {
+  background-color: #FFFDF7;
+  border: 2.5px solid #51463F;
   box-shadow: 5px 5px 0px rgba(81, 70, 63, 0.16);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.paper-card-interactive:hover {
+  transform: translateY(-3px);
+  box-shadow: 7px 8px 0px rgba(81, 70, 63, 0.22), 0 14px 28px -6px rgba(81, 70, 63, 0.12);
 }
 
 .washi-tape {
   position: absolute;
-  width: 96px;
+  width: 100px;
   height: 26px;
-  background-color: rgba(255, 217, 90, 0.72);
-  border-left: 2px dashed rgba(81, 70, 63, 0.18);
-  border-right: 2px dashed rgba(81, 70, 63, 0.18);
-  box-shadow: 0 2px 4px rgba(81, 70, 63, 0.08);
+  background-color: rgba(255, 217, 90, 0.78);
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.18) 0px,
+    rgba(255, 255, 255, 0.18) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  border-left: 2px dashed rgba(81, 70, 63, 0.22);
+  border-right: 2px dashed rgba(81, 70, 63, 0.22);
+  box-shadow: 0 2px 5px rgba(81, 70, 63, 0.10);
   z-index: 10;
   pointer-events: none;
 }
 
 .washi-tape-pink {
-  background-color: rgba(247, 184, 200, 0.75);
+  background-color: rgba(247, 184, 200, 0.80);
 }
 
 .washi-tape-blue {
-  background-color: rgba(157, 221, 242, 0.75);
+  background-color: rgba(157, 221, 242, 0.80);
+}
+
+.washi-tape-gold {
+  background-color: rgba(255, 217, 90, 0.82);
+}
+
+.washi-tape-green {
+  background-color: rgba(181, 234, 215, 0.82);
+}
+
+/* Vintage Air-Mail Envelope Border Accent */
+.airmail-border {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    #E2859E 0px,
+    #E2859E 10px,
+    #FFFDF7 10px,
+    #FFFDF7 20px,
+    #5AB9D9 20px,
+    #5AB9D9 30px,
+    #FFFDF7 30px,
+    #FFFDF7 40px
+  );
+}
+
+/* Embossed Wax Seal */
+.wax-seal {
+  background: radial-gradient(circle at 35% 30%, #F7B8C8 0%, #E2859E 55%, #B85D76 100%);
+  border: 2px solid #51463F;
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.45),
+    inset 0 -2px 4px rgba(81, 70, 63, 0.35),
+    0 4px 8px rgba(81, 70, 63, 0.22);
+}
+
+/* Photo Corner Mounts */
+.photo-corner-tl,
+.photo-corner-br {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: rgba(81, 70, 63, 0.35);
+  pointer-events: none;
+  z-index: 10;
+}
+.photo-corner-tl {
+  top: 8px;
+  left: 8px;
+  border-top: 2.5px solid rgba(81, 70, 63, 0.35);
+  border-left: 2.5px solid rgba(81, 70, 63, 0.35);
+  border-top-left-radius: 4px;
+}
+.photo-corner-br {
+  bottom: 8px;
+  right: 8px;
+  border-bottom: 2.5px solid rgba(81, 70, 63, 0.35);
+  border-right: 2.5px solid rgba(81, 70, 63, 0.35);
+  border-bottom-right-radius: 4px;
 }
 
 /* Custom scrollbar for internal chapter containers */

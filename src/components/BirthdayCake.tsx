@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Cake, Flame, Sparkles, RotateCcw, ChevronDown, Music } from 'lucide-react';
+import { Cake, Flame, Sparkles, RotateCcw, ChevronDown, Music, Check } from 'lucide-react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { useAudio } from '../context/AudioContext';
 
@@ -10,7 +10,15 @@ interface BirthdayCakeProps {
   onNext?: () => void;
 }
 
-const TOTAL_CANDLES = 5;
+const CANDLE_WISHES = [
+  { id: 1, title: 'Radiant Health & Happiness', emoji: '🌸' },
+  { id: 2, title: 'PhD & Academic Milestones', emoji: '🎓' },
+  { id: 3, title: 'Joyful Rides & Adventures', emoji: '🏍️' },
+  { id: 4, title: 'Endless Laughter at Home', emoji: '✨' },
+  { id: 5, title: 'Boundless Family Love', emoji: '❤️' },
+];
+
+const TOTAL_CANDLES = CANDLE_WISHES.length;
 
 export const BirthdayCake: React.FC<BirthdayCakeProps> = ({ resetKey = 0, onNext }) => {
   const [litCandles, setLitCandles] = useState<boolean[]>([true, true, true, true, true]);
@@ -33,7 +41,6 @@ export const BirthdayCake: React.FC<BirthdayCakeProps> = ({ resetKey = 0, onNext
         colors: ['#FFD95A', '#F7B8C8', '#9DDDF2', '#F6C9A8', '#FF8DA1'],
       });
     }
-    // Automatically celebrate with the high-energy Marathi birthday song climax!
     if (!isPlaying) {
       playTrack('climax');
     }
@@ -66,14 +73,14 @@ export const BirthdayCake: React.FC<BirthdayCakeProps> = ({ resetKey = 0, onNext
   return (
     <div
       aria-label="Chapter 07: The Birthday Cake"
-      className="w-full max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12"
+      className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12"
     >
       <div className="text-center">
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sunshine border-2 border-cocoa shadow-sticker mb-2.5">
           <Cake className="w-3.5 h-3.5 text-cocoa" />
           <span className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-cocoa">
-            CHAPTER 07 • MAKE A WISH
+            CHAPTER 07 • MAKE FIVE BIRTHDAY WISHES
           </span>
         </div>
 
@@ -89,26 +96,26 @@ export const BirthdayCake: React.FC<BirthdayCakeProps> = ({ resetKey = 0, onNext
 
         <p className="text-xs sm:text-sm font-bold text-cocoa-light mt-1">
           {allExtinguished
-            ? 'All 5 wishes made! Your family loves you endlessly!'
-            : `Click each candle to blow it out (${remainingCount} of ${TOTAL_CANDLES} lit)`}
+            ? 'All 5 birthday wishes unlocked! Your family loves you endlessly!'
+            : `Tap each candle flame to blow it out & unlock a wish (${remainingCount} of ${TOTAL_CANDLES} lit)`}
         </p>
 
         {/* The Birthday Cake Container */}
-        <div className="mt-6 paper-card rounded-3xl p-5 sm:p-7 bg-cream-paper relative max-w-md mx-auto shadow-polaroid">
+        <div className="mt-6 paper-card rounded-3xl p-5 sm:p-7 bg-cream-paper relative max-w-lg mx-auto shadow-polaroid">
           <div className="washi-tape washi-tape-pink -top-2.5 left-1/2 -translate-x-1/2" />
 
           {/* 5 Candle Flames Row */}
-          <div className="flex justify-center items-end gap-3 sm:gap-4 mb-2">
+          <div className="flex justify-center items-end gap-4 sm:gap-5 mb-1">
             {litCandles.map((isLit, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => toggleCandle(i)}
-                className="group flex flex-col items-center cursor-pointer focus:outline-none"
+                className="group flex flex-col items-center cursor-pointer"
                 aria-label={isLit ? `Blow out candle ${i + 1}` : `Candle ${i + 1} extinguished`}
               >
                 {/* Candle Flame / Smoke */}
-                <div className="h-8 flex items-center justify-center">
+                <div className="h-8 sm:h-9 flex items-center justify-center relative">
                   <AnimatePresence mode="wait">
                     {isLit ? (
                       <motion.div
@@ -127,16 +134,18 @@ export const BirthdayCake: React.FC<BirthdayCakeProps> = ({ resetKey = 0, onNext
                           ease: 'easeInOut',
                           delay: i * 0.15,
                         }}
+                        className="relative flex items-center justify-center"
                       >
-                        <Flame className="w-5 h-5 sm:w-6 sm:h-6 text-sunshine-deep fill-sunshine animate-pulse" />
+                        <span className="absolute w-6 h-6 rounded-full bg-sunshine/60 blur-xs" />
+                        <Flame className="relative w-5 h-5 sm:w-6 sm:h-6 text-sunshine-deep fill-sunshine" />
                       </motion.div>
                     ) : (
                       <motion.div
                         key="smoke"
                         initial={{ opacity: 0, y: 0 }}
-                        animate={{ opacity: [0.8, 0], y: -12 }}
-                        transition={{ duration: 1 }}
-                        className="w-1.5 h-3 bg-cocoa/30 rounded-full blur-[1px]"
+                        animate={{ opacity: [0.85, 0], y: -14 }}
+                        transition={{ duration: 0.9 }}
+                        className="w-1.5 h-3.5 bg-cocoa/35 rounded-full blur-[1px]"
                       />
                     )}
                   </AnimatePresence>
@@ -144,7 +153,7 @@ export const BirthdayCake: React.FC<BirthdayCakeProps> = ({ resetKey = 0, onNext
 
                 {/* Candle Stick */}
                 <div
-                  className={`w-3 sm:w-3.5 h-9 sm:h-11 rounded-t-sm border-2 border-cocoa transition-colors ${
+                  className={`w-3.5 sm:w-4 h-10 sm:h-11 rounded-t-sm border-2 border-cocoa transition-transform group-hover:scale-105 ${
                     i % 3 === 0
                       ? 'bg-blush'
                       : i % 3 === 1
@@ -157,21 +166,26 @@ export const BirthdayCake: React.FC<BirthdayCakeProps> = ({ resetKey = 0, onNext
           </div>
 
           {/* Illustrated 3-Tier Layer Cake */}
-          <div className="w-full max-w-[260px] mx-auto">
-            <svg viewBox="0 0 280 180" className="w-full h-auto drop-shadow-md">
+          <div className="w-full max-w-[270px] mx-auto">
+            <svg viewBox="0 0 280 185" className="w-full h-auto drop-shadow-md">
+              {/* Decorative Strawberries */}
+              <circle cx="88" cy="11" r="6" fill="#E2859E" stroke="#51463F" strokeWidth="2.5" />
+              <circle cx="140" cy="9" r="6.5" fill="#E2859E" stroke="#51463F" strokeWidth="2.5" />
+              <circle cx="192" cy="11" r="6" fill="#E2859E" stroke="#51463F" strokeWidth="2.5" />
+
               {/* Top Tier */}
               <rect
                 x="65"
-                y="10"
+                y="15"
                 width="150"
-                height="45"
+                height="44"
                 rx="14"
                 fill="#FFFDF7"
                 stroke="#51463F"
                 strokeWidth="4"
               />
               <path
-                d="M 65 30 Q 80 40 95 30 T 125 30 T 155 30 T 185 30 T 215 30"
+                d="M 65 33 Q 80 43 95 33 T 125 33 T 155 33 T 185 33 T 215 33"
                 fill="none"
                 stroke="#F7B8C8"
                 strokeWidth="4.5"
@@ -181,7 +195,7 @@ export const BirthdayCake: React.FC<BirthdayCakeProps> = ({ resetKey = 0, onNext
               {/* Middle Tier */}
               <rect
                 x="40"
-                y="55"
+                y="59"
                 width="200"
                 height="50"
                 rx="16"
@@ -189,25 +203,25 @@ export const BirthdayCake: React.FC<BirthdayCakeProps> = ({ resetKey = 0, onNext
                 stroke="#51463F"
                 strokeWidth="4"
               />
-              <circle cx="70" cy="80" r="5" fill="#FFFDF7" />
-              <circle cx="105" cy="80" r="5" fill="#FFD95A" />
-              <circle cx="140" cy="80" r="5" fill="#FFFDF7" />
-              <circle cx="175" cy="80" r="5" fill="#9DDDF2" />
-              <circle cx="210" cy="80" r="5" fill="#FFFDF7" />
+              <circle cx="70" cy="84" r="5" fill="#FFFDF7" />
+              <circle cx="105" cy="84" r="5" fill="#FFD95A" />
+              <circle cx="140" cy="84" r="5.5" fill="#FFFDF7" />
+              <circle cx="175" cy="84" r="5" fill="#9DDDF2" />
+              <circle cx="210" cy="84" r="5" fill="#FFFDF7" />
 
               {/* Bottom Tier */}
               <rect
                 x="15"
-                y="105"
+                y="109"
                 width="250"
-                height="55"
+                height="54"
                 rx="18"
                 fill="#FFFDF7"
                 stroke="#51463F"
                 strokeWidth="4"
               />
               <path
-                d="M 15 125 Q 35 135 55 125 T 95 125 T 135 125 T 175 125 T 215 125 T 255 125 T 265 125"
+                d="M 15 129 Q 35 139 55 129 T 95 129 T 135 129 T 175 129 T 215 129 T 255 129 T 265 129"
                 fill="none"
                 stroke="#9DDDF2"
                 strokeWidth="4.5"
@@ -217,7 +231,7 @@ export const BirthdayCake: React.FC<BirthdayCakeProps> = ({ resetKey = 0, onNext
               {/* Cake Stand */}
               <rect
                 x="5"
-                y="160"
+                y="163"
                 width="270"
                 height="12"
                 rx="6"
@@ -228,13 +242,41 @@ export const BirthdayCake: React.FC<BirthdayCakeProps> = ({ resetKey = 0, onNext
             </svg>
           </div>
 
+          {/* 5 Birthday Wishes Tracker Pills */}
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-left">
+            {CANDLE_WISHES.map((wish, idx) => {
+              const isUnlocked = !litCandles[idx];
+              return (
+                <button
+                  key={wish.id}
+                  type="button"
+                  onClick={() => toggleCandle(idx)}
+                  className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center justify-between gap-2 transition-all cursor-pointer ${
+                    isUnlocked
+                      ? 'bg-sunshine-soft border-cocoa text-cocoa shadow-2xs'
+                      : 'bg-cream/60 border-cocoa/20 text-cocoa-light hover:border-cocoa/40'
+                  } ${idx === 4 ? 'sm:col-span-2' : ''}`}
+                >
+                  <span className="truncate">
+                    {wish.emoji} Wish 0{wish.id}: {wish.title}
+                  </span>
+                  {isUnlocked ? (
+                    <Check className="w-3.5 h-3.5 text-cocoa shrink-0" />
+                  ) : (
+                    <span className="text-[10px] font-extrabold text-cocoa/60 shrink-0">Tap 🕯️</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
           {/* Quick Action Buttons */}
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             {!allExtinguished ? (
               <button
                 type="button"
                 onClick={blowAllCandles}
-                className="px-4 py-2 rounded-xl bg-sunshine hover:bg-sunshine-deep text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa shadow-sticker cursor-pointer transition-all"
+                className="px-4 py-2 rounded-xl bg-sunshine hover:bg-sunshine-deep active:scale-95 text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa shadow-sticker cursor-pointer transition-all"
               >
                 Blow All Candles at Once 💨
               </button>
@@ -242,7 +284,7 @@ export const BirthdayCake: React.FC<BirthdayCakeProps> = ({ resetKey = 0, onNext
               <button
                 type="button"
                 onClick={relightCandles}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-cream hover:bg-sunshine-soft text-cocoa font-heading font-bold text-xs border border-cocoa cursor-pointer transition-all"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-cream hover:bg-sunshine-soft text-cocoa font-heading font-bold text-xs border-2 border-cocoa cursor-pointer transition-all"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Relight Candles</span>
@@ -253,7 +295,7 @@ export const BirthdayCake: React.FC<BirthdayCakeProps> = ({ resetKey = 0, onNext
             <button
               type="button"
               onClick={() => playTrack(isPlaying ? activeTrack.id : 'climax')}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-cream-warm hover:bg-sunshine-soft text-cocoa font-heading font-bold text-xs border border-cocoa cursor-pointer transition-all shadow-xs"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-cream-warm hover:bg-sunshine-soft text-cocoa font-heading font-bold text-xs border-2 border-cocoa cursor-pointer transition-all shadow-xs"
               title="Play Marathi Birthday Song (हॅपी बर्थडे • रंगत संगत)"
             >
               <Music className={`w-3.5 h-3.5 ${isPlaying ? 'text-sunshine-deep animate-pulse' : 'text-cocoa'}`} />
