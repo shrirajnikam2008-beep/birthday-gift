@@ -35,7 +35,18 @@ export interface PhotoItem {
   notes: string;
 }
 
-export const allPhotos: PhotoItem[] = rawPhotos as PhotoItem[];
+const resolveAssetUrl = (src: string): string => {
+  if (!src || src.startsWith('http://') || src.startsWith('https://')) return src;
+  const clean = src.startsWith('/') ? src.slice(1) : src;
+  const base = import.meta.env.BASE_URL || './';
+  const cleanBase = base.endsWith('/') ? base : `${base}/`;
+  return `${cleanBase}${clean}`;
+};
+
+export const allPhotos: PhotoItem[] = (rawPhotos as PhotoItem[]).map((p) => ({
+  ...p,
+  src: resolveAssetUrl(p.src),
+}));
 
 // Active gallery photos exclude exact duplicates & icon-covered wallpaper duplicates
 export const galleryPhotos: PhotoItem[] = allPhotos.filter(

@@ -12,6 +12,14 @@ export interface AudioTrack {
   emoji: string;
 }
 
+const resolveAudioUrl = (src: string): string => {
+  if (!src || src.startsWith('http://') || src.startsWith('https://')) return src;
+  const clean = src.startsWith('/') ? src.slice(1) : src;
+  const base = import.meta.env.BASE_URL || './';
+  const cleanBase = base.endsWith('/') ? base : `${base}/`;
+  return `${cleanBase}${clean}`;
+};
+
 export const AUDIO_TRACKS: AudioTrack[] = [
   {
     id: 'mukhda',
@@ -20,7 +28,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     subtitle: 'The warm, melodic opening of the classic Marathi birthday song ❤️',
     lyricsHighlight: 'गोड सुरावट आणि प्रेमळ शुभेच्छांची सुरुवात — मम्मासाठी खास!',
     durationLabel: '1:06',
-    src: '/audio/marathi_birthday_mukhda.mp3',
+    src: resolveAudioUrl('/audio/marathi_birthday_mukhda.mp3'),
     badge: 'Classic Hook',
     emoji: '🎵',
   },
@@ -31,7 +39,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     subtitle: 'High-energy chorus, trumpet fanfares, rhythmic clapping & party cheers 🎉',
     lyricsHighlight: 'उत्साही सोहळा, टाळ्यांचा गजर आणि आनंदाचा जल्लोष!',
     durationLabel: '0:45',
-    src: '/audio/marathi_birthday_climax.mp3',
+    src: resolveAudioUrl('/audio/marathi_birthday_climax.mp3'),
     badge: 'Cake Cutting',
     emoji: '🎉',
   },
@@ -42,7 +50,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     subtitle: 'अशोक पत्की • प्रवीण दवणे • विनय मांडके, रवींद्र साठे, सुदेश भोसले',
     lyricsHighlight: 'संपूर्ण गाणं ऐका — आठवणींच्या सुरांतून वाढदिवसाची गोड मैफल.',
     durationLabel: '5:03',
-    src: '/audio/marathi_birthday_full.mp3',
+    src: resolveAudioUrl('/audio/marathi_birthday_full.mp3'),
     badge: 'Full Album',
     emoji: '📻',
   },
