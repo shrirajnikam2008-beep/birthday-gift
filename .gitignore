@@ -3,6 +3,4 @@ dist
 .DS_Store
 .env
 .env.local
-# Keep personal family photographs local unless explicitly approved for remote push
-public/images/*
-!public/images/decorations
+
