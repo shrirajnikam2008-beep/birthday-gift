@@ -60,6 +60,7 @@ interface AudioContextValue {
   tracks: AudioTrack[];
   activeTrack: AudioTrack;
   isPlaying: boolean;
+  isLooping: boolean;
   currentTime: number;
   duration: number;
   volume: number;
@@ -67,6 +68,7 @@ interface AudioContextValue {
   isDrawerOpen: boolean;
   playTrack: (trackId: 'mukhda' | 'climax' | 'full') => Promise<void>;
   togglePlay: () => Promise<void>;
+  toggleLoop: () => void;
   pause: () => void;
   setVolume: (val: number) => void;
   toggleMute: () => void;
@@ -80,6 +82,7 @@ const AudioContext = createContext<AudioContextValue | null>(null);
 export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeTrackId, setActiveTrackId] = useState<'mukhda' | 'climax' | 'full'>('mukhda');
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [isLooping, setIsLooping] = useState<boolean>(true);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
   const [volume, setVolumeState] = useState<number>(0.8);
@@ -87,6 +90,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const isLoopingRef = useRef<boolean>(true);
 
   const activeTrack = AUDIO_TRACKS.find((t) => t.id === activeTrackId) || AUDIO_TRACKS[0];
 
@@ -94,6 +98,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     const audio = new Audio();
     audio.preload = 'metadata';
+    audio.loop = true;
     audioRef.current = audio;
 
     const onTimeUpdate = () => {
@@ -105,6 +110,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     const onEnded = () => {
+      if (isLoopingRef.current || audio.loop) {
+        audio.currentTime = 0;
+        audio.play().catch(() => setIsPlaying(false));
+        return;
+      }
       setIsPlaying(false);
       setCurrentTime(0);
     };
@@ -131,6 +141,17 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       audio.removeEventListener('pause', onPause);
       audio.src = '';
     };
+  }, []);
+
+  const toggleLoop = useCallback(() => {
+    setIsLooping((prev) => {
+      const next = !prev;
+      isLoopingRef.current = next;
+      if (audioRef.current) {
+        audioRef.current.loop = next;
+      }
+      return next;
+    });
   }, []);
 
   // Update volume
@@ -163,6 +184,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (!audioRef.current) return;
     const track = AUDIO_TRACKS.find((t) => t.id === trackId) || AUDIO_TRACKS[0];
     setActiveTrackId(trackId);
+    audioRef.current.loop = isLoopingRef.current;
 
     // If source differs, load new source
     if (audioRef.current.src !== window.location.origin + track.src && !audioRef.current.src.endsWith(track.src)) {
@@ -185,6 +207,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setIsPlaying(false);
     } else {
       try {
+        audioRef.current.loop = isLoopingRef.current;
         await audioRef.current.play();
         setIsPlaying(true);
       } catch {
@@ -209,6 +232,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         tracks: AUDIO_TRACKS,
         activeTrack,
         isPlaying,
+        isLooping,
         currentTime,
         duration,
         volume,
@@ -216,6 +240,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         isDrawerOpen,
         playTrack,
         togglePlay,
+        toggleLoop,
         pause,
         setVolume,
         toggleMute,

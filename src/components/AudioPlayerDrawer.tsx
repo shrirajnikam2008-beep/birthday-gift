@@ -5,6 +5,7 @@ import {
   VolumeX,
   Play,
   Pause,
+  Repeat,
   X,
   Music,
   Sparkles,
@@ -18,6 +19,7 @@ export const AudioPlayerDrawer: React.FC = () => {
     tracks,
     activeTrack,
     isPlaying,
+    isLooping,
     currentTime,
     duration,
     volume,
@@ -25,6 +27,7 @@ export const AudioPlayerDrawer: React.FC = () => {
     isDrawerOpen,
     playTrack,
     togglePlay,
+    toggleLoop,
     setVolume,
     toggleMute,
     seek,
@@ -82,7 +85,7 @@ export const AudioPlayerDrawer: React.FC = () => {
             <div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sunshine border border-cocoa text-[10px] font-black uppercase tracking-wider text-cocoa mb-1 shadow-2xs">
                 <Music className="w-3 h-3" />
-                <span>MARATHI BIRTHDAY SPECIAL</span>
+                <span>MARATHI BIRTHDAY SPECIAL • REPEAT LOOP</span>
               </div>
               <h3 className="font-heading text-lg sm:text-xl font-bold text-cocoa leading-tight">
                 हॅपी बर्थडे • रंगत संगत (१९८९)
@@ -178,29 +181,29 @@ export const AudioPlayerDrawer: React.FC = () => {
             </div>
           </div>
 
-          {/* Player Controls (Play/Pause, Dancing Equalizer, Volume) */}
-          <div className="flex items-center justify-between gap-3 pt-1 border-t border-dashed border-cocoa/20">
-            {/* Animated Equalizer Wave */}
-            <div className="flex items-end gap-1 h-6 w-16">
-              {[40, 85, 60, 100, 70, 90].map((h, i) => (
-                <div
-                  key={i}
-                  className={`w-1.5 rounded-full transition-all duration-200 ${
-                    isPlaying ? 'bg-sunshine-deep animate-pulse' : 'bg-cocoa/25'
-                  }`}
-                  style={{
-                    height: isPlaying ? `${h}%` : '20%',
-                    animationDelay: `${i * 0.15}s`,
-                  }}
-                />
-              ))}
-            </div>
+          {/* Player Controls (Repeat Loop, Play/Pause, Volume) */}
+          <div className="flex items-center justify-between gap-2 sm:gap-3 pt-1 border-t border-dashed border-cocoa/20">
+            {/* Repeat Loop Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleLoop}
+              aria-pressed={isLooping}
+              title={isLooping ? 'Repeat Loop: ON' : 'Repeat Loop: OFF'}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 text-xs font-extrabold transition-all cursor-pointer ${
+                isLooping
+                  ? 'bg-sunshine-soft border-cocoa text-cocoa shadow-2xs'
+                  : 'bg-cream-warm border-cocoa/25 text-cocoa-light hover:border-cocoa'
+              }`}
+            >
+              <Repeat className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{isLooping ? 'Loop On' : 'Loop Off'}</span>
+            </button>
 
             {/* Main Play/Pause Button */}
             <button
               type="button"
               onClick={togglePlay}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-sunshine hover:bg-sunshine-deep border-3 border-cocoa shadow-sticker hover:shadow-stickerHover hover:scale-105 active:scale-95 transition-all text-sm font-black text-cocoa cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-2xl bg-sunshine hover:bg-sunshine-deep border-3 border-cocoa shadow-sticker hover:shadow-stickerHover hover:scale-105 active:scale-95 transition-all text-xs sm:text-sm font-black text-cocoa cursor-pointer"
               style={{ borderWidth: '3px' }}
             >
               {isPlaying ? (
@@ -238,7 +241,7 @@ export const AudioPlayerDrawer: React.FC = () => {
                 step="0.05"
                 value={isMuted ? 0 : volume}
                 onChange={(e) => setVolume(Number(e.target.value))}
-                className="w-16 sm:w-20 accent-sunshine cursor-pointer"
+                className="w-14 sm:w-20 accent-sunshine cursor-pointer"
               />
             </div>
           </div>
