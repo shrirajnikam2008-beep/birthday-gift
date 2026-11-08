@@ -58,15 +58,27 @@ export const FamilyMessages: React.FC<FamilyMessagesProps> = ({ onPrev, onNext }
   const highlightPhoto2 = getPhotoById('photo-024'); // Festive family gathering
   const highlightPhoto3 = getPhotoById('photo-031'); // Evening chai together
   const highlightPhoto4 = getPhotoById('photo-040'); // Mumma holding baby Shriraj
+  const highlightPhoto5 = getPhotoById('photo-049'); // Grand family wedding stage celebration
+  const highlightPhoto6 = getPhotoById('photo-050'); // Cozy winter beanie selfie with kids
+  const highlightPhoto7 = getPhotoById('photo-051'); // Sunny highway road-trip selfie
+  const highlightPhoto8 = getPhotoById('photo-054'); // 9 Nov birthday cake blessing with elders
+
+  const highlightSnapshots: PhotoItem[] = [
+    highlightPhoto1,
+    highlightPhoto2,
+    highlightPhoto3,
+    highlightPhoto4,
+    highlightPhoto5,
+    highlightPhoto6,
+    highlightPhoto7,
+    highlightPhoto8,
+  ].filter((p): p is PhotoItem => p !== undefined);
 
   const chapterPhotos: PhotoItem[] = [
     familyCoverPhoto,
     papaPhoto,
     sonPhoto,
-    highlightPhoto1,
-    highlightPhoto2,
-    highlightPhoto3,
-    highlightPhoto4,
+    ...highlightSnapshots,
   ].filter((p): p is PhotoItem => p !== undefined);
 
   const openPhotoInLightbox = (photoId: string) => {
@@ -373,34 +385,31 @@ export const FamilyMessages: React.FC<FamilyMessagesProps> = ({ onPrev, onNext }
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 sm:gap-4 max-w-4xl mx-auto">
-          {[highlightPhoto1, highlightPhoto2, highlightPhoto3, highlightPhoto4].map(
-            (photo, idx) =>
-              photo && (
-                <motion.button
-                  key={photo.id}
-                  type="button"
-                  onClick={() => openPhotoInLightbox(photo.id)}
-                  initial={{ opacity: 0, y: 12 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.15 }}
-                  transition={{ delay: idx * 0.08 }}
-                  className="paper-card-interactive rounded-2xl p-2.5 pb-3 bg-cream-paper flex flex-col justify-between cursor-pointer group text-center"
-                >
-                  <div className="relative w-full h-40 sm:h-48 rounded-xl overflow-hidden border border-cocoa/20 bg-cream-warm mb-2 flex items-center justify-center">
-                    <img
-                      src={photo.src}
-                      alt={photo.description}
-                      className="w-full h-full object-contain group-hover:scale-105 transition-transform"
-                      loading="lazy"
-                    />
-                  </div>
-                  <p className="font-handwritten text-sm sm:text-base font-bold text-center text-cocoa line-clamp-1">
-                    {photo.caption}
-                  </p>
-                </motion.button>
-              )
-          )}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 sm:gap-4 max-w-5xl mx-auto">
+          {highlightSnapshots.map((photo, idx) => (
+            <motion.button
+              key={photo.id}
+              type="button"
+              onClick={() => openPhotoInLightbox(photo.id)}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.15 }}
+              transition={{ delay: idx * 0.06 }}
+              className="paper-card-interactive rounded-2xl p-2.5 pb-3 bg-cream-paper flex flex-col justify-between cursor-pointer group text-center"
+            >
+              <div className="relative w-full h-40 sm:h-48 rounded-xl overflow-hidden border border-cocoa/20 bg-cream-warm mb-2 flex items-center justify-center">
+                <img
+                  src={photo.src}
+                  alt={photo.description}
+                  className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                  loading="lazy"
+                />
+              </div>
+              <p className="font-handwritten text-sm sm:text-base font-bold text-center text-cocoa line-clamp-1">
+                {photo.caption}
+              </p>
+            </motion.button>
+          ))}
         </div>
       </div>
 

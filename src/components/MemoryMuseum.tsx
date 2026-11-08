@@ -42,6 +42,15 @@ const TIMELINE_MILESTONES = [
     badgeBg: 'bg-sunshine',
   },
   {
+    era: '2018 – 2022 • ADVENTURES, WEDDINGS & WINTER SMILES',
+    year: '2018 – 2022',
+    title: 'Royal Phetas, Winter Beanies & Road Trips',
+    marathi: 'सण-समारंभ, हिवाळ्यातली ऊब आणि प्रवासातली मज्जा! 🚗🎊',
+    note: 'Theme park adventures, grand family wedding stages, cozy winter beanies, and sunny highway drives together.',
+    photoIds: ['photo-048', 'photo-049', 'photo-050', 'photo-051'],
+    badgeBg: 'bg-peach',
+  },
+  {
     era: 'SCHOLAR & RIDER • UNSTOPPABLE SPIRIT',
     year: '2023 – 2024',
     title: 'Commanding the Classroom & the Road',
@@ -51,13 +60,13 @@ const TIMELINE_MILESTONES = [
     badgeBg: 'bg-skyblue',
   },
   {
-    era: 'FESTIVALS & TOGETHERNESS • 2025',
+    era: 'FESTIVALS, LAUGHTER & BIRTHDAY BLESSINGS • 2025',
     year: '2025',
-    title: 'Seaside Horizons & Family Celebrations',
-    marathi: 'सण, प्रवास आणि आपल्या कुटुंबाचा आनंद ✨',
-    note: 'Peaceful seaside mornings with Papa, traditional festivities, and cousins gathered together.',
-    photoIds: ['photo-028', 'photo-030'],
-    badgeBg: 'bg-peach',
+    title: 'Seaside Horizons & 9 November Celebrations',
+    marathi: 'सण, प्रवास आणि वडीलधाऱ्यांच्या आशीर्वादाने साजरा झालेला वाढदिवस ✨🎂',
+    note: 'Peaceful seaside mornings with Papa, infectious laughter at home, and cutting the birthday cake surrounded by elders.',
+    photoIds: ['photo-028', 'photo-054', 'photo-053', 'photo-042'],
+    badgeBg: 'bg-blush',
   },
   {
     era: '2026 • THE QUEEN TODAY',
@@ -77,9 +86,9 @@ export const MemoryMuseum: React.FC<MemoryMuseumProps> = ({ onPrev, onNext }) =>
   const [favoriteIds, setFavoriteIds] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('nisha_fav_photos');
-      return saved ? JSON.parse(saved) : ['photo-002', 'photo-005', 'photo-029', 'photo-030'];
+      return saved ? JSON.parse(saved) : ['photo-002', 'photo-005', 'photo-029', 'photo-030', 'photo-048', 'photo-054'];
     } catch {
-      return ['photo-002', 'photo-005', 'photo-029', 'photo-030'];
+      return ['photo-002', 'photo-005', 'photo-029', 'photo-030', 'photo-048', 'photo-054'];
     }
   });
   const reducedMotion = useReducedMotion();
@@ -487,7 +496,7 @@ export const MemoryMuseum: React.FC<MemoryMuseumProps> = ({ onPrev, onNext }) =>
       {/* End of Gallery Loving Note & Chapter Navigation */}
       <div className="mt-12 p-5 sm:p-6 rounded-3xl bg-sunshine-soft/75 border-2 border-cocoa max-w-2xl mx-auto text-center shadow-scrapbook">
         <p className="font-marathi text-base sm:text-lg font-bold text-cocoa">
-          &ldquo;सर्व ४४ आठवणी येथे सुरक्षित आहेत. प्रत्येक फोटोमध्ये आपल्या कुटुंबाचं प्रेम आहे! ❤️&rdquo;
+          &ldquo;सर्व ५२ आठवणी येथे सुरक्षित आहेत. प्रत्येक फोटोमध्ये आपल्या कुटुंबाचं प्रेम आहे! ❤️&rdquo;
         </p>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
           {onPrev && (
