@@ -8,10 +8,12 @@ import {
   CheckCircle2,
   ChevronDown,
   ArrowRight,
+  ArrowLeft,
 } from 'lucide-react';
 import { letterEnvelopes, LetterEnvelopeItem } from '../data/messages';
 
 interface LetterEnvelopesProps {
+  onPrev?: () => void;
   onNext?: () => void;
 }
 
@@ -45,7 +47,7 @@ const colorMap: Record<
   },
 };
 
-export const LetterEnvelopes: React.FC<LetterEnvelopesProps> = ({ onNext }) => {
+export const LetterEnvelopes: React.FC<LetterEnvelopesProps> = ({ onPrev, onNext }) => {
   const [readIds, setReadIds] = useState<string[]>(['envelope-1']);
 
   const handleEnvelopeClick = (id: string, num: number) => {
@@ -232,17 +234,29 @@ export const LetterEnvelopes: React.FC<LetterEnvelopesProps> = ({ onNext }) => {
         })}
       </div>
 
-      {/* Chapter 05 Next Chapter Bridge CTA */}
-      {onNext && (
-        <div className="mt-10 sm:mt-12 text-center">
-          <button
-            type="button"
-            onClick={onNext}
-            className="group inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-peach hover:bg-peach-deep active:scale-95 text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa shadow-sticker hover:shadow-stickerHover hover:-translate-y-0.5 transition-all cursor-pointer"
-          >
-            <span>NEXT: MESSAGES FROM OUR FAMILY (CHAPTER 06)</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
+      {/* Chapter 05 Navigation Bridge CTA */}
+      {(onPrev || onNext) && (
+        <div className="mt-10 sm:mt-12 flex flex-wrap items-center justify-center gap-3">
+          {onPrev && (
+            <button
+              type="button"
+              onClick={onPrev}
+              className="inline-flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-cream-paper hover:bg-sunshine-soft text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa cursor-pointer transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>PREV: MEMORY MUSEUM</span>
+            </button>
+          )}
+          {onNext && (
+            <button
+              type="button"
+              onClick={onNext}
+              className="group inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-peach hover:bg-peach-deep active:scale-95 text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa shadow-sticker hover:shadow-stickerHover hover:-translate-y-0.5 transition-all cursor-pointer"
+            >
+              <span>NEXT: MESSAGES FROM OUR FAMILY (CHAPTER 06)</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          )}
         </div>
       )}
     </div>

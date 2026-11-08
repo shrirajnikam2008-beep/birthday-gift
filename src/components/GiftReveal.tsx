@@ -1,24 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Gift, Star, Sparkles, Heart, RotateCcw, Award } from 'lucide-react';
+import { Gift, Star, Sparkles, Heart, RotateCcw, Award, ArrowLeft } from 'lucide-react';
 import { giftStars } from '../data/messages';
+import { getPhotoById } from '../data/photos';
 import { ShinchanMascot } from './ShinchanMascot';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
 interface GiftRevealProps {
   resetKey?: number;
+  onPrev?: () => void;
   onReplayAll: () => void;
   onOpenJarModal?: () => void;
 }
 
 export const GiftReveal: React.FC<GiftRevealProps> = ({
   resetKey = 0,
+  onPrev,
   onReplayAll,
   onOpenJarModal,
 }) => {
   const [clickedStars, setClickedStars] = useState<number[]>([]);
   const reducedMotion = useReducedMotion();
+
+  const finaleFamilyPhoto = getPhotoById('photo-005'); // Mumma, Papa & Shriraj
+  const finaleMotherSonPhoto = getPhotoById('photo-029'); // Mumma & Shriraj 2026
 
   useEffect(() => {
     setClickedStars([]);
@@ -77,7 +83,7 @@ export const GiftReveal: React.FC<GiftRevealProps> = ({
           </p>
         </div>
 
-        {/* 5 Interactive Stars Grid (Remains visible so Mumma can read all 5 notes!) */}
+        {/* 5 Interactive Stars Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3 mb-6 max-w-4xl mx-auto">
           {giftStars.map((star) => {
             const isUnlocked = clickedStars.includes(star.id);
@@ -132,7 +138,7 @@ export const GiftReveal: React.FC<GiftRevealProps> = ({
         </div>
 
         {/* Gift Box Stage */}
-        <div className="paper-card rounded-3xl p-5 sm:p-8 bg-cream-paper text-center relative max-w-2xl mx-auto shadow-polaroid">
+        <div className="paper-card rounded-3xl p-5 sm:p-8 bg-cream-paper text-center relative max-w-3xl mx-auto shadow-polaroid">
           <div className="washi-tape washi-tape-blue -top-2.5 left-1/2 -translate-x-1/2" />
 
           {!allStarsClicked ? (
@@ -175,23 +181,35 @@ export const GiftReveal: React.FC<GiftRevealProps> = ({
                 {5 - clickedStars.length} more star{5 - clickedStars.length === 1 ? '' : 's'} to open your gift box!
               </p>
 
-              <button
-                type="button"
-                onClick={unlockAllStars}
-                className="px-5 py-2.5 rounded-xl bg-blush hover:bg-blush-deep active:scale-95 text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa shadow-sticker cursor-pointer transition-all"
-              >
-                Unlock All 5 Stars &amp; Open Box 🎁
-              </button>
+              <div className="flex flex-wrap items-center justify-center gap-2.5">
+                {onPrev && (
+                  <button
+                    type="button"
+                    onClick={onPrev}
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-cream hover:bg-sunshine-soft text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa cursor-pointer transition-all"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span>Prev: Cake Time</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={unlockAllStars}
+                  className="px-5 py-2.5 rounded-xl bg-blush hover:bg-blush-deep active:scale-95 text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa shadow-sticker cursor-pointer transition-all"
+                >
+                  Unlock All 5 Stars &amp; Open Box 🎁
+                </button>
+              </div>
             </div>
           ) : (
             <AnimatePresence>
               <motion.div
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.35 }}
-                className="py-2 max-w-xl mx-auto"
+                transition={{ duration: 0.4 }}
+                className="py-2 max-w-2xl mx-auto"
               >
-                <div className="flex justify-center mb-3">
+                <div className="flex justify-center mb-2">
                   <ShinchanMascot mood="love" className="w-16 h-16 sm:w-20 sm:h-20" />
                 </div>
 
@@ -200,7 +218,7 @@ export const GiftReveal: React.FC<GiftRevealProps> = ({
                   <span>ALL 5 STARS ILLUMINATED • GRAND FINALE</span>
                 </div>
 
-                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-sunshine via-blush-light to-skyblue-light border-2 border-cocoa shadow-polaroid mb-4">
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-sunshine via-blush-light to-skyblue-light border-2 border-cocoa shadow-polaroid mb-5">
                   <h3 className="font-heading text-lg sm:text-2xl font-bold text-cocoa">
                     YOUR REAL GIFT IS WAITING FOR YOU! 🎁
                   </h3>
@@ -208,6 +226,44 @@ export const GiftReveal: React.FC<GiftRevealProps> = ({
                     (To be handed to you personally with the biggest hug!)
                   </p>
                 </div>
+
+                {/* Meaningful Final Family Keepsake Photographs */}
+                {(finaleFamilyPhoto || finaleMotherSonPhoto) && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                    {finaleFamilyPhoto && (
+                      <div className="p-3 rounded-2xl bg-cream border-2 border-cocoa/30 shadow-xs">
+                        <div className="relative h-44 sm:h-48 w-full rounded-xl overflow-hidden bg-cream-warm flex items-center justify-center">
+                          <span className="photo-corner-tl" />
+                          <span className="photo-corner-br" />
+                          <img
+                            src={finaleFamilyPhoto.src}
+                            alt={finaleFamilyPhoto.description}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        <p className="font-handwritten text-base sm:text-lg font-bold text-cocoa mt-2">
+                          Our Little Universe Forever ❤️
+                        </p>
+                      </div>
+                    )}
+                    {finaleMotherSonPhoto && (
+                      <div className="p-3 rounded-2xl bg-cream border-2 border-cocoa/30 shadow-xs">
+                        <div className="relative h-44 sm:h-48 w-full rounded-xl overflow-hidden bg-cream-warm flex items-center justify-center">
+                          <span className="photo-corner-tl" />
+                          <span className="photo-corner-br" />
+                          <img
+                            src={finaleMotherSonPhoto.src}
+                            alt={finaleMotherSonPhoto.description}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        <p className="font-handwritten text-base sm:text-lg font-bold text-cocoa mt-2">
+                          Always Your Little Boy • 2026 ✨
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Final Emotional Closing */}
                 <div className="space-y-3 pt-3 border-t-2 border-dashed border-cocoa/20">
@@ -232,7 +288,7 @@ export const GiftReveal: React.FC<GiftRevealProps> = ({
                       className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-sunshine hover:bg-sunshine-deep active:scale-95 text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa shadow-sticker cursor-pointer transition-all"
                     >
                       <RotateCcw className="w-4 h-4" />
-                      <span>Replay From Chapter 01</span>
+                      <span>Replay Complete Experience</span>
                       <Heart className="w-4 h-4 fill-blush-deep text-cocoa" />
                     </button>
 

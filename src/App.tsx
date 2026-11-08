@@ -30,7 +30,6 @@ export function App() {
   });
 
   const currentRef = useRef<ChapterId>('welcome');
-  const programmaticRef = useRef(false);
 
   const jumpTo = (id: ChapterId) => {
     const el = document.getElementById(id);
@@ -39,10 +38,9 @@ export function App() {
     window.scrollTo({ top: Math.max(0, top), behavior: 'instant' as ScrollBehavior });
   };
 
-  // Every programmatic route (menu, CTA, hash, back/forward) goes through the water splash:
-  // the page jumps while the viewport is fully covered, then the water drains away.
+  // Deliberate chapter navigation (menu, Next/Prev buttons, hash, back/forward)
+  // triggers the full-screen water splash and swaps position at the crest.
   const navigateToChapter = useCallback((targetId: ChapterId, pushHistory = true) => {
-    if (!document.getElementById(targetId)) return;
     if (pushHistory) {
       try {
         window.history.pushState({ chapterId: targetId }, '', `#${targetId}`);
@@ -50,23 +48,26 @@ export function App() {
         // ignore history errors in sandboxed frames
       }
     }
-    if (targetId === currentRef.current) {
+    if (targetId === currentRef.current && document.getElementById(targetId)) {
       jumpTo(targetId);
       return;
     }
-    programmaticRef.current = true;
     currentRef.current = targetId;
     setCurrentChapterId(targetId);
-    void waterController
-      .play({ onPeak: () => jumpTo(targetId) })
-      .finally(() => {
-        window.setTimeout(() => {
-          if (!waterController.isBusy()) programmaticRef.current = false;
-        }, 400);
-      });
+    void waterController.play({
+      onPeak: () => {
+        if (targetId !== 'welcome') {
+          setIsUniverseUnfolded(true);
+        }
+        window.requestAnimationFrame(() => {
+          jumpTo(targetId);
+        });
+      },
+    });
   }, []);
 
-  // Natural scrolling across a chapter boundary also triggers the splash (cosmetic, never blocks scroll).
+  // Natural scrolling updates the active chapter indicator and URL hash smoothly
+  // WITHOUT triggering disruptive full-screen water animations while reading.
   useEffect(() => {
     const sections = CHAPTERS.map((c) => document.getElementById(c.id)).filter(
       (el): el is HTMLElement => el !== null
@@ -74,6 +75,7 @@ export function App() {
     if (sections.length === 0) return;
     const observer = new IntersectionObserver(
       (entries) => {
+        if (waterController.isBusy()) return;
         const visible = entries.filter((e) => e.isIntersecting);
         if (visible.length === 0) return;
         visible.sort((a, b) => b.intersectionRatio - a.intersectionRatio);
@@ -86,9 +88,6 @@ export function App() {
         } catch {
           // ignore
         }
-        if (!programmaticRef.current && !waterController.isBusy()) {
-          void waterController.play();
-        }
       },
       { root: null, rootMargin: '-20% 0px -30% 0px', threshold: [0.1, 0.3, 0.6] }
     );
@@ -96,27 +95,39 @@ export function App() {
     return () => observer.disconnect();
   }, [isUniverseUnfolded]);
 
-  // Initialize from URL hash and handle browser back/forward
+  // Initialize from URL hash and handle browser Back/Forward
   useEffect(() => {
     const hash = window.location.hash.replace('#', '') as ChapterId;
     if (CHAPTERS.some((c) => c.id === hash) && hash !== 'welcome') {
-      window.setTimeout(() => navigateToChapter(hash, false), 150);
+      window.setTimeout(() => navigateToChapter(hash, false), 120);
     }
     const handlePopState = (event: PopStateEvent) => {
-      const stateChapter = event.state?.chapterId as ChapterId | undefined;
-      if (stateChapter && CHAPTERS.some((c) => c.id === stateChapter)) {
-        navigateToChapter(stateChapter, false);
-      }
+      const fromState = event.state?.chapterId as ChapterId | undefined;
+      const fromHash = window.location.hash.replace('#', '') as ChapterId;
+      const target = fromState || (CHAPTERS.some((c) => c.id === fromHash) ? fromHash : 'welcome');
+      navigateToChapter(target, false);
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, [navigateToChapter]);
 
+  // Complete experience replay/reset
   const handleReplay = useCallback(() => {
-    setReplayKey((prev) => prev + 1);
-    setIsUniverseUnfolded(false);
-    navigateToChapter('welcome');
-  }, [navigateToChapter]);
+    void waterController.play({
+      onPeak: () => {
+        setReplayKey((prev) => prev + 1);
+        setIsUniverseUnfolded(false);
+        currentRef.current = 'welcome';
+        setCurrentChapterId('welcome');
+        try {
+          window.history.pushState({ chapterId: 'welcome' }, '', '#welcome');
+        } catch {
+          // ignore
+        }
+        window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+      },
+    });
+  }, []);
 
   return (
     <AudioProvider>
@@ -127,20 +138,7 @@ export function App() {
         {/* Top Storybook Sticky Header & Dynamic Scroll Progress */}
         <Navbar
           currentChapterId={currentChapterId}
-          onSelectChapter={(id) => {
-            if (!isUniverseUnfolded && id !== 'welcome') {
-              void waterController.play({
-                onPeak: () => {
-                  setIsUniverseUnfolded(true);
-                  window.setTimeout(() => jumpTo(id), 80);
-                },
-              });
-              currentRef.current = id;
-              setCurrentChapterId(id);
-              return;
-            }
-            navigateToChapter(id);
-          }}
+          onSelectChapter={(id) => navigateToChapter(id)}
           onOpenJarModal={() => setJarModalOpen(true)}
         />
 
@@ -152,9 +150,10 @@ export function App() {
           <section id="welcome" className="snap-start relative scroll-mt-16">
             <WelcomeScreen
               isUnfolded={isUniverseUnfolded}
+              resetKey={replayKey}
               onUnfold={() => void waterController.play({ onPeak: () => setIsUniverseUnfolded(true) })}
               onNext={() => navigateToChapter('birthday-queen')}
-              onReplay={() => setIsUniverseUnfolded(false)}
+              onReplay={handleReplay}
             />
           </section>
 
@@ -166,43 +165,58 @@ export function App() {
             </div>
           ) : (
             <motion.div
-              initial={{ opacity: 0, y: 35 }}
+              initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             >
               {/* =========================================================================
                   CHAPTER 02: THE QUEEN
                   ========================================================================= */}
               <section id="birthday-queen" className="snap-start relative scroll-mt-16">
-                <BirthdayQueen onNext={() => navigateToChapter('academic-legend')} />
+                <BirthdayQueen
+                  onPrev={() => navigateToChapter('welcome')}
+                  onNext={() => navigateToChapter('academic-legend')}
+                />
               </section>
 
               {/* =========================================================================
                   CHAPTER 03: HER WORLD & ACADEMIC LEGEND
                   ========================================================================= */}
               <section id="academic-legend" className="snap-start relative scroll-mt-16">
-                <AcademicJourney onNext={() => navigateToChapter('memory-museum')} />
+                <AcademicJourney
+                  onPrev={() => navigateToChapter('birthday-queen')}
+                  onNext={() => navigateToChapter('memory-museum')}
+                />
               </section>
 
               {/* =========================================================================
                   CHAPTER 04: THE MEMORY MUSEUM (ALL 44 UNIQUE PHOTOGRAPHS)
                   ========================================================================= */}
               <section id="memory-museum" className="snap-start relative scroll-mt-16">
-                <MemoryMuseum onNext={() => navigateToChapter('letters')} />
+                <MemoryMuseum
+                  onPrev={() => navigateToChapter('academic-legend')}
+                  onNext={() => navigateToChapter('letters')}
+                />
               </section>
 
               {/* =========================================================================
                   CHAPTER 05: FIVE LETTERS FROM THE HEART
                   ========================================================================= */}
               <section id="letters" className="snap-start relative scroll-mt-16">
-                <LetterEnvelopes onNext={() => navigateToChapter('family')} />
+                <LetterEnvelopes
+                  onPrev={() => navigateToChapter('memory-museum')}
+                  onNext={() => navigateToChapter('family')}
+                />
               </section>
 
               {/* =========================================================================
                   CHAPTER 06: OUR FAMILY
                   ========================================================================= */}
               <section id="family" className="snap-start relative scroll-mt-16">
-                <FamilyMessages onNext={() => navigateToChapter('birthday-cake')} />
+                <FamilyMessages
+                  onPrev={() => navigateToChapter('letters')}
+                  onNext={() => navigateToChapter('birthday-cake')}
+                />
               </section>
 
               {/* =========================================================================
@@ -211,6 +225,7 @@ export function App() {
               <section id="birthday-cake" className="snap-start relative scroll-mt-16">
                 <BirthdayCake
                   resetKey={replayKey}
+                  onPrev={() => navigateToChapter('family')}
                   onNext={() => navigateToChapter('gift-reveal')}
                 />
               </section>
@@ -221,6 +236,7 @@ export function App() {
               <section id="gift-reveal" className="snap-start relative scroll-mt-16">
                 <GiftReveal
                   resetKey={replayKey}
+                  onPrev={() => navigateToChapter('birthday-cake')}
                   onReplayAll={handleReplay}
                   onOpenJarModal={() => setJarModalOpen(true)}
                 />

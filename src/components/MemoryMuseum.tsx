@@ -9,18 +9,69 @@ import {
   ArrowLeftRight,
   LayoutGrid,
   ArrowRight,
+  ArrowLeft,
+  Clock,
 } from 'lucide-react';
-import { galleryPhotos, museumCategories, PhotoItem } from '../data/photos';
+import { galleryPhotos, museumCategories, PhotoItem, getPhotoById } from '../data/photos';
 import { PhotoLightbox } from './PhotoLightbox';
 import { ThenVsNow } from './ThenVsNow';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
 interface MemoryMuseumProps {
+  onPrev?: () => void;
   onNext?: () => void;
 }
 
-export const MemoryMuseum: React.FC<MemoryMuseumProps> = ({ onNext }) => {
-  const [activeView, setActiveView] = useState<'stream' | 'then-vs-now'>('stream');
+const TIMELINE_MILESTONES = [
+  {
+    era: 'EARLY CHAPTERS • ROOTS OF GRACE',
+    year: 'Foundations',
+    title: 'Where Our Little Universe Began',
+    marathi: 'जिथून आपल्या या गोड जगाची सुरुवात झाली ❤️',
+    note: 'Early family portraits radiating the warmth, simplicity, and love that built our home.',
+    photoIds: ['photo-005', 'photo-040'],
+    badgeBg: 'bg-blush',
+  },
+  {
+    era: 'AUGUST 2016 • CHILDHOOD WARMTH',
+    year: '2016',
+    title: 'Tiny Arms & Endless Security',
+    marathi: 'तुझ्या मिठीतलं ते सुरक्षित जग!',
+    note: 'From childhood hugs to quiet everyday lessons — you were always my safest place.',
+    photoIds: ['photo-003', 'photo-011'],
+    badgeBg: 'bg-sunshine',
+  },
+  {
+    era: 'SCHOLAR & RIDER • UNSTOPPABLE SPIRIT',
+    year: '2023 – 2024',
+    title: 'Commanding the Classroom & the Road',
+    marathi: 'शिकवण्याची आवड आणि रॉयल एनफिल्डची स्वारी! 🏍️🎓',
+    note: 'Balancing lectures, terrace PhD research, and hopping onto a Royal Enfield Hunter with effortless confidence.',
+    photoIds: ['photo-025', 'photo-017'],
+    badgeBg: 'bg-skyblue',
+  },
+  {
+    era: 'FESTIVALS & TOGETHERNESS • 2025',
+    year: '2025',
+    title: 'Seaside Horizons & Family Celebrations',
+    marathi: 'सण, प्रवास आणि आपल्या कुटुंबाचा आनंद ✨',
+    note: 'Peaceful seaside mornings with Papa, traditional festivities, and cousins gathered together.',
+    photoIds: ['photo-028', 'photo-030'],
+    badgeBg: 'bg-peach',
+  },
+  {
+    era: '2026 • THE QUEEN TODAY',
+    year: '2026',
+    title: 'Radiant, Proud & Forever Our Mumma',
+    marathi: 'आजही तितकीच तेजस्वी आणि प्रेमळ — आमची मम्मा! 👑',
+    note: 'Standing side by side before college in Vellore — carrying your values everywhere life goes.',
+    photoIds: ['photo-029', 'photo-002'],
+    badgeBg: 'bg-sunshine',
+  },
+];
+
+export const MemoryMuseum: React.FC<MemoryMuseumProps> = ({ onPrev, onNext }) => {
+  const [activeView, setActiveView] = useState<'stream' | 'timeline' | 'then-vs-now'>('stream');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [favoriteIds, setFavoriteIds] = useState<string[]>(() => {
@@ -64,6 +115,17 @@ export const MemoryMuseum: React.FC<MemoryMuseumProps> = ({ onNext }) => {
     setLightboxIndex(index);
   };
 
+  const handleOpenPhotoById = (photoId: string) => {
+    const idx = filteredPhotos.findIndex((p) => p.id === photoId);
+    if (idx !== -1) {
+      setLightboxIndex(idx);
+    } else {
+      setSelectedCategory('all');
+      const allIdx = galleryPhotos.findIndex((p) => p.id === photoId);
+      if (allIdx !== -1) setLightboxIndex(allIdx);
+    }
+  };
+
   const handleLightboxPrev = () => {
     if (lightboxIndex === null) return;
     setLightboxIndex((lightboxIndex - 1 + filteredPhotos.length) % filteredPhotos.length);
@@ -74,7 +136,6 @@ export const MemoryMuseum: React.FC<MemoryMuseumProps> = ({ onNext }) => {
     setLightboxIndex((lightboxIndex + 1) % filteredPhotos.length);
   };
 
-  // Washi tape color cyclical rotation for charming scrapbook variation
   const getWashiTapeClass = (idx: number) => {
     const tapes = ['washi-tape-pink', 'washi-tape-blue', 'washi-tape-gold', 'washi-tape-green'];
     return tapes[idx % tapes.length];
@@ -96,8 +157,8 @@ export const MemoryMuseum: React.FC<MemoryMuseumProps> = ({ onNext }) => {
         </h2>
 
         <p className="text-xs sm:text-sm md:text-base font-bold text-cocoa-light mt-1.5 max-w-2xl mx-auto">
-          Every cherished memory pops into focus as you scroll down. Two large Polaroid keepsakes per view,
-          preserved at their authentic aspect ratio and overflowing with our family&apos;s love.
+          Explore all {galleryPhotos.length} curated family photographs in the Memory Album, walk through our
+          chronological Family Timeline, or slide between Then vs Now time capsules.
         </p>
 
         <p className="font-marathi text-sm sm:text-base font-bold text-cocoa mt-2">
@@ -107,12 +168,12 @@ export const MemoryMuseum: React.FC<MemoryMuseumProps> = ({ onNext }) => {
 
       {/* Top Controls: Mode Switcher & Category Filters */}
       <div className="sticky top-14 sm:top-16 z-30 bg-cream/95 backdrop-blur-md py-3 mb-8 border-y-2 border-cocoa/15 flex flex-col lg:flex-row items-center justify-between gap-3 px-2 rounded-2xl">
-        {/* Left: View Mode Toggle */}
-        <div className="flex items-center gap-1.5 bg-cream-warm p-1 rounded-2xl border-2 border-cocoa shadow-xs shrink-0">
+        {/* Left: View Mode Toggle (Album / Timeline / Then vs Now) */}
+        <div className="flex flex-wrap items-center justify-center gap-1.5 bg-cream-warm p-1 rounded-2xl border-2 border-cocoa shadow-xs shrink-0">
           <button
             type="button"
             onClick={() => setActiveView('stream')}
-            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
               activeView === 'stream'
                 ? 'bg-sunshine text-cocoa shadow-sticker font-black'
                 : 'text-cocoa-light hover:text-cocoa'
@@ -124,15 +185,28 @@ export const MemoryMuseum: React.FC<MemoryMuseumProps> = ({ onNext }) => {
 
           <button
             type="button"
+            onClick={() => setActiveView('timeline')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
+              activeView === 'timeline'
+                ? 'bg-skyblue text-cocoa shadow-sticker font-black'
+                : 'text-cocoa-light hover:text-cocoa'
+            }`}
+          >
+            <Clock className="w-3.5 h-3.5" />
+            <span>Family Timeline</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveView('then-vs-now')}
-            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
               activeView === 'then-vs-now'
                 ? 'bg-blush text-cocoa shadow-sticker font-black'
                 : 'text-cocoa-light hover:text-cocoa'
             }`}
           >
             <ArrowLeftRight className="w-3.5 h-3.5" />
-            <span>Then vs Now (3 Pairs)</span>
+            <span>Then vs Now</span>
           </button>
         </div>
 
@@ -187,6 +261,79 @@ export const MemoryMuseum: React.FC<MemoryMuseumProps> = ({ onNext }) => {
         <div className="py-2">
           <ThenVsNow />
         </div>
+      ) : activeView === 'timeline' ? (
+        /* =========================================================================
+           INTERACTIVE CHRONOLOGICAL FAMILY TIMELINE VIEW
+           ========================================================================= */
+        <div className="max-w-4xl mx-auto py-2">
+          <div className="relative border-l-3 border-dashed border-cocoa/35 ml-4 sm:ml-8 pl-6 sm:pl-8 space-y-8">
+            {TIMELINE_MILESTONES.map((item, idx) => {
+              const photos = item.photoIds
+                .map((id) => getPhotoById(id))
+                .filter((p): p is PhotoItem => p !== undefined);
+
+              return (
+                <motion.div
+                  key={item.era}
+                  initial={{ opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.15 }}
+                  transition={{ duration: 0.45, delay: idx * 0.06 }}
+                  className="relative paper-card rounded-3xl p-5 sm:p-6 bg-cream-paper"
+                >
+                  {/* Timeline Node Dot */}
+                  <div
+                    className={`absolute -left-[37px] sm:-left-[45px] top-6 w-6 h-6 rounded-full ${item.badgeBg} border-2 border-cocoa shadow-xs flex items-center justify-center text-[10px] font-black text-cocoa`}
+                  >
+                    {idx + 1}
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <span
+                      className={`px-3 py-0.5 rounded-full ${item.badgeBg} border border-cocoa text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-cocoa`}
+                    >
+                      {item.era}
+                    </span>
+                    <span className="text-xs font-black text-cocoa-light">{item.year}</span>
+                  </div>
+
+                  <h3 className="font-heading text-lg sm:text-2xl font-bold text-cocoa">
+                    {item.title}
+                  </h3>
+                  <p className="font-marathi text-sm sm:text-base font-bold text-cocoa mt-0.5">
+                    &ldquo;{item.marathi}&rdquo;
+                  </p>
+                  <p className="text-xs sm:text-sm font-semibold text-cocoa-light mt-1.5 mb-4">
+                    {item.note}
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {photos.map((photo) => (
+                      <button
+                        key={photo.id}
+                        type="button"
+                        onClick={() => handleOpenPhotoById(photo.id)}
+                        className="group p-2.5 rounded-2xl bg-cream border-2 border-cocoa/25 hover:border-cocoa transition-all text-left cursor-pointer"
+                      >
+                        <div className="w-full h-48 sm:h-52 rounded-xl overflow-hidden bg-cream-warm flex items-center justify-center relative">
+                          <img
+                            src={photo.src}
+                            alt={photo.description}
+                            loading="lazy"
+                            className="w-full h-full object-contain group-hover:scale-103 transition-transform"
+                          />
+                        </div>
+                        <p className="font-handwritten text-base sm:text-lg font-bold text-cocoa mt-2 line-clamp-1">
+                          {photo.caption}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
       ) : (
         /* =========================================================================
            SCROLL-DRIVEN MEMORY FLASHBACK STREAM (TWO LARGE IMAGES PER VIEW)
@@ -217,8 +364,8 @@ export const MemoryMuseum: React.FC<MemoryMuseumProps> = ({ onNext }) => {
                         ? { opacity: 1 }
                         : {
                             opacity: 0,
-                            y: 40,
-                            scale: 0.94,
+                            y: 32,
+                            scale: 0.96,
                           }
                     }
                     whileInView={{
@@ -228,11 +375,11 @@ export const MemoryMuseum: React.FC<MemoryMuseumProps> = ({ onNext }) => {
                     }}
                     viewport={{ once: true, amount: 0.15 }}
                     transition={{
-                      duration: reducedMotion ? 0.05 : 0.55,
-                      delay: (index % 2) * 0.1,
+                      duration: reducedMotion ? 0.05 : 0.5,
+                      delay: (index % 2) * 0.08,
                       ease: [0.22, 1, 0.36, 1],
                     }}
-                    className="group relative bg-cream-paper rounded-3xl p-4 sm:p-5 pb-5 border-3 border-cocoa shadow-scrapbook hover:shadow-polaroid hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
+                    className="group relative bg-cream-paper rounded-3xl p-4 sm:p-5 pb-5 border-3 border-cocoa shadow-scrapbook hover:shadow-polaroid hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
                     style={{ borderWidth: '3px' }}
                   >
                     {/* Washi Tape Accent */}
@@ -253,6 +400,7 @@ export const MemoryMuseum: React.FC<MemoryMuseumProps> = ({ onNext }) => {
                         src={photo.src}
                         alt={photo.caption || photo.description}
                         loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-contain p-1.5 group-hover:scale-102 transition-transform duration-300 block"
                       />
 
@@ -333,27 +481,37 @@ export const MemoryMuseum: React.FC<MemoryMuseumProps> = ({ onNext }) => {
               })}
             </AnimatePresence>
           </div>
-
-          {/* End of Gallery Loving Note & Next Chapter CTA */}
-          <div className="mt-12 p-5 sm:p-6 rounded-3xl bg-sunshine-soft/75 border-2 border-cocoa max-w-xl mx-auto text-center shadow-scrapbook">
-            <p className="font-marathi text-base sm:text-lg font-bold text-cocoa">
-              &ldquo;सर्व ४४ आठवणी येथे सुरक्षित आहेत. प्रत्येक फोटोमध्ये आपल्या कुटुंबाचं प्रेम आहे! ❤️&rdquo;
-            </p>
-            {onNext && (
-              <div className="mt-4">
-                <button
-                  type="button"
-                  onClick={onNext}
-                  className="group inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-blush hover:bg-blush-deep active:scale-95 text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa shadow-sticker hover:shadow-stickerHover hover:-translate-y-0.5 transition-all cursor-pointer"
-                >
-                  <span>NEXT: FIVE LETTERS FROM THE HEART</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
-              </div>
-            )}
-          </div>
         </div>
       )}
+
+      {/* End of Gallery Loving Note & Chapter Navigation */}
+      <div className="mt-12 p-5 sm:p-6 rounded-3xl bg-sunshine-soft/75 border-2 border-cocoa max-w-2xl mx-auto text-center shadow-scrapbook">
+        <p className="font-marathi text-base sm:text-lg font-bold text-cocoa">
+          &ldquo;सर्व ४४ आठवणी येथे सुरक्षित आहेत. प्रत्येक फोटोमध्ये आपल्या कुटुंबाचं प्रेम आहे! ❤️&rdquo;
+        </p>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+          {onPrev && (
+            <button
+              type="button"
+              onClick={onPrev}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-cream hover:bg-sunshine-soft text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa cursor-pointer transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>PREV: HER WORLD</span>
+            </button>
+          )}
+          {onNext && (
+            <button
+              type="button"
+              onClick={onNext}
+              className="group inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-blush hover:bg-blush-deep active:scale-95 text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa shadow-sticker hover:shadow-stickerHover hover:-translate-y-0.5 transition-all cursor-pointer"
+            >
+              <span>NEXT: FIVE LETTERS FROM THE HEART</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* Full-screen Lightbox Modal */}
       <PhotoLightbox

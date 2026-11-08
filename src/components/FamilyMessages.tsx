@@ -8,6 +8,7 @@ import {
   Sparkles,
   Star,
   ArrowRight,
+  ArrowLeft,
   Maximize2,
 } from 'lucide-react';
 import { familyMessages } from '../data/messages';
@@ -15,10 +16,11 @@ import { getPhotoById, PhotoItem } from '../data/photos';
 import { PhotoLightbox } from './PhotoLightbox';
 
 interface FamilyMessagesProps {
+  onPrev?: () => void;
   onNext?: () => void;
 }
 
-export const FamilyMessages: React.FC<FamilyMessagesProps> = ({ onNext }) => {
+export const FamilyMessages: React.FC<FamilyMessagesProps> = ({ onPrev, onNext }) => {
   const defaultPapaText = familyMessages[0].paragraphs.join('\n\n');
   const [papaText, setPapaText] = useState<string>(() => {
     try {
@@ -402,17 +404,29 @@ export const FamilyMessages: React.FC<FamilyMessagesProps> = ({ onNext }) => {
         </div>
       </div>
 
-      {/* Chapter 06 Next Chapter Bridge CTA */}
-      {onNext && (
-        <div className="mt-10 sm:mt-12 text-center">
-          <button
-            type="button"
-            onClick={onNext}
-            className="group inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-sunshine hover:bg-sunshine-deep active:scale-95 text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa shadow-sticker hover:shadow-stickerHover hover:-translate-y-0.5 transition-all cursor-pointer"
-          >
-            <span>NEXT: IT&apos;S BIRTHDAY CAKE TIME (CHAPTER 07) 🎂</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
+      {/* Chapter 06 Navigation Bridge CTA */}
+      {(onPrev || onNext) && (
+        <div className="mt-10 sm:mt-12 flex flex-wrap items-center justify-center gap-3">
+          {onPrev && (
+            <button
+              type="button"
+              onClick={onPrev}
+              className="inline-flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-cream-paper hover:bg-sunshine-soft text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa cursor-pointer transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>PREV: MY LETTERS</span>
+            </button>
+          )}
+          {onNext && (
+            <button
+              type="button"
+              onClick={onNext}
+              className="group inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-sunshine hover:bg-sunshine-deep active:scale-95 text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa shadow-sticker hover:shadow-stickerHover hover:-translate-y-0.5 transition-all cursor-pointer"
+            >
+              <span>NEXT: IT&apos;S BIRTHDAY CAKE TIME (CHAPTER 07) 🎂</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          )}
         </div>
       )}
 

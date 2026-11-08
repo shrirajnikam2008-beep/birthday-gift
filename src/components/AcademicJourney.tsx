@@ -9,6 +9,7 @@ import {
   Star,
   BookOpen,
   ArrowRight,
+  ArrowLeft,
   Sparkles,
   Award,
 } from 'lucide-react';
@@ -16,6 +17,7 @@ import { getPhotoById } from '../data/photos';
 import { ShinchanMascot } from './ShinchanMascot';
 
 interface AcademicJourneyProps {
+  onPrev?: () => void;
   onNext?: () => void;
 }
 
@@ -70,7 +72,7 @@ const dashboardMetrics = [
   },
 ];
 
-export const AcademicJourney: React.FC<AcademicJourneyProps> = ({ onNext }) => {
+export const AcademicJourney: React.FC<AcademicJourneyProps> = ({ onPrev, onNext }) => {
   const [selectedMetricId, setSelectedMetricId] = useState<string>('res');
   const scholarPhoto = getPhotoById('photo-017'); // Terrace scholar with books & laptop
   const educatorPhoto = getPhotoById('photo-002'); // Educator portrait
@@ -291,17 +293,29 @@ export const AcademicJourney: React.FC<AcademicJourneyProps> = ({ onNext }) => {
         </div>
       </div>
 
-      {/* Chapter 03 Next Chapter Bridge CTA */}
-      {onNext && (
-        <div className="mt-10 sm:mt-12 text-center">
-          <button
-            type="button"
-            onClick={onNext}
-            className="group inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-skyblue hover:bg-skyblue-deep active:scale-95 text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa shadow-sticker hover:shadow-stickerHover hover:-translate-y-0.5 transition-all cursor-pointer"
-          >
-            <span>NEXT: ENTER THE MEMORY MUSEUM (44 PHOTOS)</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
+      {/* Chapter 03 Navigation Bridge CTA */}
+      {(onPrev || onNext) && (
+        <div className="mt-10 sm:mt-12 flex flex-wrap items-center justify-center gap-3">
+          {onPrev && (
+            <button
+              type="button"
+              onClick={onPrev}
+              className="inline-flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-cream-paper hover:bg-sunshine-soft text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa cursor-pointer transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>PREV: THE QUEEN</span>
+            </button>
+          )}
+          {onNext && (
+            <button
+              type="button"
+              onClick={onNext}
+              className="group inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-skyblue hover:bg-skyblue-deep active:scale-95 text-cocoa font-heading font-bold text-xs sm:text-sm border-2 border-cocoa shadow-sticker hover:shadow-stickerHover hover:-translate-y-0.5 transition-all cursor-pointer"
+            >
+              <span>NEXT: ENTER THE MEMORY MUSEUM (44 PHOTOS)</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          )}
         </div>
       )}
     </div>

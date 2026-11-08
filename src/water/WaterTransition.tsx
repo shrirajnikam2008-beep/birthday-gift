@@ -2,8 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { waterController } from './waterController';
 import { FRAG, VERT } from './waterShader';
 
-const DURATION_MS = 2900;
-const PEAK_AT = 0.5;
+const DURATION_MS = 2300;
+const PEAK_AT = 0.48;
 
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
@@ -18,7 +18,8 @@ function frontAt(t: number) {
 }
 
 function compile(gl: WebGLRenderingContext, type: number, src: string) {
-  const s = gl.createShader(type)!;
+  const s = gl.createShader(type);
+  if (!s) throw new Error('shader creation failed');
   gl.shaderSource(s, src);
   gl.compileShader(s);
   if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
@@ -38,41 +39,61 @@ export const WaterTransition: React.FC = () => {
   const veilRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current!;
-    const veil = veilRef.current!;
+    const canvas = canvasRef.current;
+    const veil = veilRef.current;
+    if (!canvas || !veil) return undefined;
+
     let raf = 0;
     let cancelled = false;
+    let t1 = 0;
+    let t2 = 0;
 
     const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const fallback = (onPeak: () => void) =>
+    const fallback = (onPeak: () => void, signal: { aborted: boolean }) =>
       new Promise<void>((resolve) => {
-        veil.style.transition = 'opacity 180ms ease-out';
-        veil.style.opacity = '1';
-        window.setTimeout(() => {
+        if (signal.aborted || cancelled) {
           onPeak();
-          veil.style.transition = 'opacity 260ms ease-in';
+          resolve();
+          return;
+        }
+        veil.style.transition = 'opacity 160ms ease-out';
+        veil.style.opacity = '1';
+        t1 = window.setTimeout(() => {
+          onPeak();
+          veil.style.transition = 'opacity 220ms ease-in';
           veil.style.opacity = '0';
-          window.setTimeout(resolve, 280);
-        }, 190);
+          t2 = window.setTimeout(resolve, 230);
+        }, 170);
       });
 
-    const run = ({ onPeak }: { onPeak: () => void }) => {
-      if (reduced()) return fallback(onPeak);
+    const run = ({ onPeak, signal }: { onPeak: () => void; signal: { aborted: boolean } }) => {
+      if (reduced()) return fallback(onPeak, signal);
 
-      const gl = canvas.getContext('webgl', { premultipliedAlpha: true, alpha: true, antialias: false });
-      if (!gl) return fallback(onPeak);
+      const gl = canvas.getContext('webgl', {
+        premultipliedAlpha: true,
+        alpha: true,
+        antialias: false,
+        powerPreference: 'high-performance',
+      });
+      if (!gl) return fallback(onPeak, signal);
 
       let prog: WebGLProgram;
-      let buf: WebGLBuffer | null;
+      let buf: WebGLBuffer | null = null;
+      let vShader: WebGLShader | null = null;
+      let fShader: WebGLShader | null = null;
       try {
         prog = gl.createProgram()!;
-        gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, VERT));
-        gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, FRAG));
+        vShader = compile(gl, gl.VERTEX_SHADER, VERT);
+        fShader = compile(gl, gl.FRAGMENT_SHADER, FRAG);
+        gl.attachShader(prog, vShader);
+        gl.attachShader(prog, fShader);
         gl.linkProgram(prog);
         if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error('link failed');
       } catch {
-        return fallback(onPeak);
+        if (vShader) gl.deleteShader(vShader);
+        if (fShader) gl.deleteShader(fShader);
+        return fallback(onPeak, signal);
       }
 
       buf = gl.createBuffer();
@@ -87,32 +108,41 @@ export const WaterTransition: React.FC = () => {
       const uTime = gl.getUniformLocation(prog, 'uTime');
       const uVel = gl.getUniformLocation(prog, 'uVel');
 
-      const small = window.innerWidth < 768;
-      const dpr = Math.min(window.devicePixelRatio || 1, small ? 1 : 1.5) * (small ? 0.75 : 0.85);
-      canvas.width = Math.max(2, Math.floor(window.innerWidth * dpr));
-      canvas.height = Math.max(2, Math.floor(window.innerHeight * dpr));
-      gl.viewport(0, 0, canvas.width, canvas.height);
-      gl.uniform2f(uRes, canvas.width, canvas.height);
+      const syncSize = () => {
+        const small = window.innerWidth < 768;
+        const dpr = Math.min(window.devicePixelRatio || 1, small ? 1 : 1.5) * (small ? 0.72 : 0.85);
+        canvas.width = Math.max(2, Math.floor(window.innerWidth * dpr));
+        canvas.height = Math.max(2, Math.floor(window.innerHeight * dpr));
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.uniform2f(uRes, canvas.width, canvas.height);
+      };
+
+      syncSize();
+      window.addEventListener('resize', syncSize, { passive: true });
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
       canvas.style.opacity = '1';
 
       return new Promise<void>((resolve) => {
         const start = performance.now();
-        const total = small ? DURATION_MS * 0.85 : DURATION_MS;
+        const small = window.innerWidth < 768;
+        const total = small ? DURATION_MS * 0.82 : DURATION_MS;
         let peaked = false;
 
         const cleanup = () => {
           cancelAnimationFrame(raf);
+          window.removeEventListener('resize', syncSize);
           canvas.style.opacity = '0';
-          gl.deleteBuffer(buf);
+          if (buf) gl.deleteBuffer(buf);
+          if (vShader) gl.deleteShader(vShader);
+          if (fShader) gl.deleteShader(fShader);
           gl.deleteProgram(prog);
           gl.getExtension('WEBGL_lose_context')?.loseContext();
           resolve();
         };
 
         const frame = (now: number) => {
-          if (cancelled) return cleanup();
+          if (cancelled || signal.aborted) return cleanup();
           const t = Math.min((now - start) / total, 1);
           const { front, vel } = frontAt(t);
           gl.clearColor(0, 0, 0, 0);
@@ -136,6 +166,8 @@ export const WaterTransition: React.FC = () => {
     return () => {
       cancelled = true;
       cancelAnimationFrame(raf);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
       unregister();
     };
   }, []);
@@ -145,12 +177,12 @@ export const WaterTransition: React.FC = () => {
       <canvas
         ref={canvasRef}
         aria-hidden="true"
-        className="fixed inset-0 w-full h-full pointer-events-none z-[70] opacity-0"
+        className="fixed inset-0 w-full h-full pointer-events-none z-[70] opacity-0 transition-opacity duration-150"
       />
       <div
         ref={veilRef}
         aria-hidden="true"
-        className="fixed inset-0 pointer-events-none z-[70] opacity-0 bg-skyblue-soft/70"
+        className="fixed inset-0 pointer-events-none z-[70] opacity-0 bg-gradient-to-b from-skyblue-soft/80 via-cream/85 to-skyblue-light/80 backdrop-blur-[2px]"
       />
     </>
   );

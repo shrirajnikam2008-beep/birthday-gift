@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Cake, Flame, Sparkles, RotateCcw, ChevronDown, Music, Check } from 'lucide-react';
+import { Cake, Flame, Sparkles, RotateCcw, ChevronDown, Music, Check, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { useAudio } from '../context/AudioContext';
 
 interface BirthdayCakeProps {
   resetKey?: number;
+  onPrev?: () => void;
   onNext?: () => void;
 }
 
@@ -20,7 +21,7 @@ const CANDLE_WISHES = [
 
 const TOTAL_CANDLES = CANDLE_WISHES.length;
 
-export const BirthdayCake: React.FC<BirthdayCakeProps> = ({ resetKey = 0, onNext }) => {
+export const BirthdayCake: React.FC<BirthdayCakeProps> = ({ resetKey = 0, onPrev, onNext }) => {
   const [litCandles, setLitCandles] = useState<boolean[]>([true, true, true, true, true]);
   const reducedMotion = useReducedMotion();
   const { playTrack, isPlaying, activeTrack } = useAudio();
@@ -331,6 +332,29 @@ export const BirthdayCake: React.FC<BirthdayCakeProps> = ({ resetKey = 0, onNext
               </motion.div>
             )}
           </AnimatePresence>
+          {/* Chapter 07 Navigation Footer */}
+          <div className="mt-5 pt-3 border-t border-dashed border-cocoa/15 flex flex-wrap items-center justify-center gap-2.5">
+            {onPrev && (
+              <button
+                type="button"
+                onClick={onPrev}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cream hover:bg-sunshine-soft text-cocoa font-heading font-bold text-xs border-2 border-cocoa cursor-pointer transition-all"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Prev: Our Family</span>
+              </button>
+            )}
+            {onNext && !allExtinguished && (
+              <button
+                type="button"
+                onClick={scrollToGift}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blush-light hover:bg-blush text-cocoa font-heading font-bold text-xs border-2 border-cocoa cursor-pointer transition-all"
+              >
+                <span>Next: Final Surprise</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

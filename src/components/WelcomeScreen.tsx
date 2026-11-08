@@ -19,6 +19,7 @@ import { useAudio } from '../context/AudioContext';
 
 interface WelcomeScreenProps {
   isUnfolded: boolean;
+  resetKey?: number;
   onUnfold: () => void;
   onNext?: () => void;
   onReplay?: () => void;
@@ -33,6 +34,7 @@ const CHECKLIST_ITEMS = [
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   isUnfolded,
+  resetKey = 0,
   onUnfold,
   onNext,
   onReplay,
@@ -43,6 +45,11 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   const heroPhoto = getPhotoById('photo-002');
   const reducedMotion = useReducedMotion();
   const { playTrack, isPlaying } = useAudio();
+
+  React.useEffect(() => {
+    setLitCandles([true, true, true, true, true]);
+    setCheckedRoles(['prof', 'res', 'adv', 'mum']);
+  }, [resetKey]);
 
   const litCount = litCandles.filter(Boolean).length;
 
