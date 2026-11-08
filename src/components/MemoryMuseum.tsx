@@ -60,12 +60,12 @@ const TIMELINE_MILESTONES = [
     badgeBg: 'bg-skyblue',
   },
   {
-    era: 'FESTIVALS, LAUGHTER & BIRTHDAY BLESSINGS • 2025',
+    era: '45TH BIRTHDAY WITH AAI & BABA • 2025',
     year: '2025',
-    title: 'Seaside Horizons & 9 November Celebrations',
-    marathi: 'सण, प्रवास आणि वडीलधाऱ्यांच्या आशीर्वादाने साजरा झालेला वाढदिवस ✨🎂',
-    note: 'Peaceful seaside mornings with Papa, infectious laughter at home, and cutting the birthday cake surrounded by elders.',
-    photoIds: ['photo-028', 'photo-054', 'photo-053', 'photo-042'],
+    title: '45th Birthday in Her Parents’ Loving Embrace',
+    marathi: 'वय ४५ असलं तरी आई-बाबांसाठी ती आजही त्यांची लाडकी लेकच! 🎂🙏❤️',
+    note: 'Celebrating her 45th birthday (9 November 2025) sitting proudly between her beloved parents, plus seaside mornings with Papa and joyful moments at home.',
+    photoIds: ['photo-054', 'photo-042', 'photo-028', 'photo-053'],
     badgeBg: 'bg-blush',
   },
   {
